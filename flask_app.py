@@ -611,7 +611,7 @@ def check_compat():
         '     "Sorry, there are currently no latest [CATEGORY] for [YEAR], but here are the latest [CATEGORY] in [FALLBACK_YEAR]:"\n'
         '     Replace [CATEGORY], [YEAR], and [FALLBACK_YEAR] appropriately (e.g., "Sorry, there are currently no latest GPU for 2025, but here are the latest GPU in 2024:"). Then list items as below.\n'
         "  4) When items are available, list **3 to 5** entries in bullet form. Each bullet must contain the model name followed by a short one-sentence description (tier/features/reputation). Use this example formatting:\n"
-        "     Here are some of the latest GPUs you might consider for your PC-building project:\n"
+        "     Here are some of the latest GPUs (2025) you might consider for your PC-building project:\n"
         "  Then display them as bullet points (•)\n"
         "     • ASUS GeForce RTX 5090 — Top-tier enthusiast GPU for 2025; often called the uncontested best graphics card this year.\n"
         "     • Gigabyte Radeon RX 9060 XT 16 GB — A newer high-end card offering strong price-to-performance.\n"
