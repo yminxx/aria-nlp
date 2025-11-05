@@ -1,0 +1,41 @@
+  <!doctype html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARsemble AI Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+      <main class="chat-container">
+
+      <!-- Scrollable chat area: greeting + chips + messages all inside #chat -->
+      <div id="chat" class="chat-box">
+        <div class="aria-bubble">
+          <p>Hello, I’m Aria. How may I help you today?</p>
+        </div>
+
+        <div class="suggestions">
+          <button class="suggest-btn">Recommend me a gaming build worth PHP 30,000</button>
+          <button class="suggest-btn">ASUS PRIME B650-PLUS specifications</button>
+          <button class="suggest-btn">Latest GPU</button>
+          <button class="suggest-btn">What does a VRAM do?</button>
+        </div>
+
+        <!-- Where messages will be appended by JS -->
+        <!-- The JS appendMessage function will still append children to #chat -->
+      </div>
+
+      <!-- Fixed input stays at viewport bottom -->
+      <form id="f" class="chat-input" onsubmit="return false;">
+        <textarea id="q" rows="1" placeholder="e.g. Intel Core i3 13100 compatible motherboard"></textarea>
+        <button id="askBtn" type="button">▲</button>
+      </form>
+
+    </main>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </body>
+  </html>

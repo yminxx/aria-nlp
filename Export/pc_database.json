@@ -1,0 +1,872 @@
+{
+    "cpus": [
+        {
+            "id": "cpu-amd-ryzen3-3200g",
+            "displayName": "AMD Ryzen 3 3200G",
+            "brand": "AMD",
+            "price": 5200,
+            "socket": "AM4",
+            "generation": "Zen+",
+            "cores": 4,
+            "threads": 4,
+            "tdp": 65,
+            "igpu": true,
+            "supportedChipsets": [
+                "B450",
+                "B550"
+            ],
+            "recommendedUse": "Best for entry-level gaming and everyday office tasks with built-in graphics.",
+            "compatibilityNotes": "Compatible with AM4 motherboards (B450, B550). No BIOS update needed for newer boards."
+        },
+        {
+            "id": "cpu-amd-ryzen5-3600",
+            "displayName": "AMD Ryzen 5 3600",
+            "brand": "AMD",
+            "price": 9800,
+            "socket": "AM4",
+            "generation": "Zen 2",
+            "cores": 6,
+            "threads": 12,
+            "tdp": 65,
+            "igpu": false,
+            "supportedChipsets": [
+                "B450",
+                "B550",
+                "X570"
+            ],
+            "recommendedUse": "Ideal for mid-range gaming and multitasking builds.",
+            "compatibilityNotes": "Requires discrete GPU. Works with AM4 motherboards (B450, B550, X570); BIOS update may be required on older boards."
+        },
+        {
+            "id": "cpu-amd-ryzen5-5600g",
+            "displayName": "AMD Ryzen 5 5600G",
+            "brand": "AMD",
+            "price": 10500,
+            "socket": "AM4",
+            "generation": "Zen 3",
+            "cores": 6,
+            "threads": 12,
+            "tdp": 65,
+            "igpu": true,
+            "supportedChipsets": [
+                "B450",
+                "B550",
+                "X570"
+            ],
+            "recommendedUse": "Great for gaming and productivity without needing a dedicated GPU.",
+            "compatibilityNotes": "Supports AM4 motherboards. May need BIOS update for B450 boards."
+        },
+        {
+            "id": "cpu-amd-ryzen5-5600x",
+            "displayName": "AMD Ryzen 5 5600X",
+            "brand": "AMD",
+            "price": 11500,
+            "socket": "AM4",
+            "generation": "Zen 3",
+            "cores": 6,
+            "threads": 12,
+            "tdp": 65,
+            "igpu": false,
+            "supportedChipsets": [
+                "B450",
+                "B550",
+                "X570"
+            ],
+            "recommendedUse": "Excellent for 1080p and 1440p gaming with strong single-core performance.",
+            "compatibilityNotes": "Requires discrete GPU. Compatible with B450 (with BIOS update), B550, and X570 boards."
+        },
+        {
+            "id": "cpu-amd-ryzen7-5700x",
+            "displayName": "AMD Ryzen 7 5700X",
+            "brand": "AMD",
+            "price": 18000,
+            "socket": "AM4",
+            "generation": "Zen 3",
+            "cores": 8,
+            "threads": 16,
+            "tdp": 65,
+            "igpu": false,
+            "supportedChipsets": [
+                "B550",
+                "X570"
+            ],
+            "recommendedUse": "Best for advanced gaming, streaming, and light content creation.",
+            "compatibilityNotes": "Compatible with AM4 boards (B550, X570). Requires discrete GPU."
+        },
+        {
+            "id": "cpu-amd-ryzen7-5800x",
+            "displayName": "AMD Ryzen 7 5800X",
+            "brand": "AMD",
+            "price": 19500,
+            "socket": "AM4",
+            "generation": "Zen 3",
+            "cores": 8,
+            "threads": 16,
+            "tdp": 105,
+            "igpu": false,
+            "supportedChipsets": [
+                "B550",
+                "X570"
+            ],
+            "recommendedUse": "Perfect for high-performance gaming and heavy multitasking.",
+            "compatibilityNotes": "Works with B550/X570 motherboards. Needs dedicated graphics card."
+        },
+        {
+            "id": "cpu-amd-ryzen9-5900x",
+            "displayName": "AMD Ryzen 9 5900X",
+            "brand": "AMD",
+            "price": 28000,
+            "socket": "AM4",
+            "generation": "Zen 3",
+            "cores": 12,
+            "threads": 24,
+            "tdp": 105,
+            "igpu": false,
+            "supportedChipsets": [
+                "X570"
+            ],
+            "recommendedUse": "Designed for high-end gaming and workstation-level productivity.",
+            "compatibilityNotes": "Compatible with X570 boards. Ensure proper cooling for 105W TDP. Requires GPU."
+        },
+        {
+            "id": "cpu-amd-ryzen5-7600",
+            "displayName": "AMD Ryzen 5 7600",
+            "brand": "AMD",
+            "price": 16500,
+            "socket": "AM5",
+            "generation": "Zen 4",
+            "cores": 6,
+            "threads": 12,
+            "tdp": 65,
+            "igpu": false,
+            "supportedChipsets": [
+                "B650",
+                "X670"
+            ],
+            "recommendedUse": "Great for modern gaming and productivity on AM5 platform.",
+            "compatibilityNotes": "Requires AM5 motherboard and DDR5 memory. Supports B650 and X670 chipsets."
+        },
+        {
+            "id": "cpu-amd-ryzen7-7700x",
+            "displayName": "AMD Ryzen 7 7700X",
+            "brand": "AMD",
+            "price": 27000,
+            "socket": "AM5",
+            "generation": "Zen 4",
+            "cores": 8,
+            "threads": 16,
+            "tdp": 105,
+            "igpu": false,
+            "supportedChipsets": [
+                "B650",
+                "X670"
+            ],
+            "recommendedUse": "High-end gaming and streaming CPU for demanding users.",
+            "compatibilityNotes": "AM5 only. Requires DDR5 memory and compatible cooler rated for 105W TDP."
+        },
+        {
+            "id": "cpu-amd-ryzen9-7900x",
+            "displayName": "AMD Ryzen 9 7900X",
+            "brand": "AMD",
+            "price": 42000,
+            "socket": "AM5",
+            "generation": "Zen 4",
+            "cores": 12,
+            "threads": 24,
+            "tdp": 170,
+            "igpu": false,
+            "supportedChipsets": [
+                "X670"
+            ],
+            "recommendedUse": "For heavy content creation, rendering, and AAA gaming.",
+            "compatibilityNotes": "Requires AM5 board and high-end cooler (≥170W TDP)."
+        },
+        {
+            "id": "cpu-amd-ryzen9-7950x",
+            "displayName": "AMD Ryzen 9 7950X",
+            "brand": "AMD",
+            "price": 62000,
+            "socket": "AM5",
+            "generation": "Zen 4",
+            "cores": 16,
+            "threads": 32,
+            "tdp": 170,
+            "igpu": false,
+            "supportedChipsets": [
+                "X670"
+            ],
+            "recommendedUse": "Top-tier CPU for extreme workloads, 4K gaming, and rendering.",
+            "compatibilityNotes": "AM5 only. Requires high-end cooling solution and DDR5 RAM."
+        },
+        {
+            "id": "cpu-intel-i3-13100",
+            "displayName": "Intel Core i3 13100",
+            "brand": "Intel",
+            "price": 6200,
+            "socket": "LGA1700",
+            "generation": "13th Gen",
+            "cores": 4,
+            "threads": 8,
+            "tdp": 60,
+            "igpu": true,
+            "supportedChipsets": [
+                "B660",
+                "H610"
+            ],
+            "recommendedUse": "Perfect for basic gaming, office use, and light multitasking.",
+            "compatibilityNotes": "Supports LGA1700 boards (B660, H610). Includes integrated graphics."
+        },
+        {
+            "id": "cpu-intel-i3-14100",
+            "displayName": "Intel Core i3 14100",
+            "brand": "Intel",
+            "price": 6800,
+            "socket": "LGA1700",
+            "generation": "14th Gen",
+            "cores": 6,
+            "threads": 8,
+            "tdp": 60,
+            "igpu": true,
+            "supportedChipsets": [
+                "B760",
+                "H710"
+            ],
+            "recommendedUse": "Budget-friendly CPU for entry-level gaming and productivity.",
+            "compatibilityNotes": "Works with B760 and H710 motherboards. Backward compatible with 13th-gen boards."
+        },
+        {
+            "id": "cpu-intel-i5-13400",
+            "displayName": "Intel Core i5 13400",
+            "brand": "Intel",
+            "price": 12000,
+            "socket": "LGA1700",
+            "generation": "13th Gen",
+            "cores": 10,
+            "threads": 16,
+            "tdp": 65,
+            "igpu": true,
+            "supportedChipsets": [
+                "B660",
+                "Z690"
+            ],
+            "recommendedUse": "Ideal mid-tier CPU for gaming and multitasking.",
+            "compatibilityNotes": "LGA1700 compatible. Works best with B660/Z690 boards; BIOS update may be required."
+        },
+        {
+            "id": "cpu-intel-i5-14500",
+            "displayName": "Intel Core i5 14500",
+            "brand": "Intel",
+            "price": 14000,
+            "socket": "LGA1700",
+            "generation": "14th Gen",
+            "cores": 12,
+            "threads": 16,
+            "tdp": 65,
+            "igpu": true,
+            "supportedChipsets": [
+                "B760",
+                "Z790"
+            ],
+            "recommendedUse": "Best for modern gaming and creative workloads.",
+            "compatibilityNotes": "Supports B760 and Z790 boards. Works with DDR4 or DDR5 depending on board type."
+        },
+        {
+            "id": "cpu-intel-i5-14600k",
+            "displayName": "Intel Core i5 14600K",
+            "brand": "Intel",
+            "price": 18500,
+            "socket": "LGA1700",
+            "generation": "14th Gen",
+            "cores": 14,
+            "threads": 20,
+            "tdp": 125,
+            "igpu": true,
+            "supportedChipsets": [
+                "Z690",
+                "Z790"
+            ],
+            "recommendedUse": "Powerful gaming and streaming CPU with overclocking support.",
+            "compatibilityNotes": "Requires LGA1700 board (Z690/Z790). Ensure cooler supports 125W TDP."
+        },
+        {
+            "id": "cpu-intel-i7-13700k",
+            "displayName": "Intel Core i7 13700K",
+            "brand": "Intel",
+            "price": 36000,
+            "socket": "LGA1700",
+            "generation": "13th Gen",
+            "cores": 16,
+            "threads": 24,
+            "tdp": 125,
+            "igpu": true,
+            "supportedChipsets": [
+                "Z690",
+                "Z790"
+            ],
+            "recommendedUse": "High-end gaming and content creation processor.",
+            "compatibilityNotes": "LGA1700 socket. Compatible with Z690 and Z790 motherboards; supports DDR4/DDR5 depending on board."
+        },
+        {
+            "id": "cpu-intel-i7-14700k",
+            "displayName": "Intel Core i7 14700K",
+            "brand": "Intel",
+            "price": 46000,
+            "socket": "LGA1700",
+            "generation": "14th Gen",
+            "cores": 20,
+            "threads": 28,
+            "tdp": 125,
+            "igpu": true,
+            "supportedChipsets": [
+                "Z790"
+            ],
+            "recommendedUse": "Great for gaming enthusiasts and professional workloads.",
+            "compatibilityNotes": "Compatible with LGA1700 Z790 boards. Requires quality cooling for 125W TDP."
+        },
+        {
+            "id": "cpu-intel-i9-14900k",
+            "displayName": "Intel Core i9 14900K",
+            "brand": "Intel",
+            "price": 72000,
+            "socket": "LGA1700",
+            "generation": "14th Gen",
+            "cores": 24,
+            "threads": 32,
+            "tdp": 125,
+            "igpu": true,
+            "supportedChipsets": [
+                "Z790"
+            ],
+            "recommendedUse": "Flagship CPU for extreme gaming, rendering, and AI workloads.",
+            "compatibilityNotes": "LGA1700 only. Requires top-tier cooling and PSU for stable performance."
+        }
+    ],
+    "motherboards": [
+        {
+            "id": "mb-msi-pro-h610m-s-ddr4-1",
+            "displayName": "MSI Pro H610M S DDR4",
+            "brand": "MSI",
+            "price": 5800,
+            "socket": "LGA1700",
+            "chipset": "H610",
+            "formFactor": "mATX",
+            "ramType": "DDR4",
+            "ramSlots": 2,
+            "maxRamMHz": 4800,
+            "m2Slots": 1,
+            "sataPorts": 4
+        },
+        {
+            "id": "mb-msi-b450m-a-pro-max-ii",
+            "displayName": "MSI B450M-A PRO MAX II",
+            "brand": "MSI",
+            "price": 4200,
+            "socket": "AM4",
+            "chipset": "B450",
+            "formFactor": "mATX",
+            "ramType": "DDR4",
+            "ramSlots": 4,
+            "maxRamMHz": 4133,
+            "m2Slots": 0,
+            "sataPorts": 6
+        },
+        {
+            "id": "mb-msi-pro-h610m-s-ddr4-2",
+            "displayName": "MSI Pro H610M S DDR4",
+            "brand": "MSI",
+            "price": 5800,
+            "socket": "LGA1700",
+            "chipset": "H610",
+            "formFactor": "mATX",
+            "ramType": "DDR4",
+            "ramSlots": 2,
+            "maxRamMHz": 4800,
+            "m2Slots": 1,
+            "sataPorts": 4
+        },
+        {
+            "id": "mb-ramsta-rs-b450mp",
+            "displayName": "RAMSTA RS-B450MP",
+            "brand": "RAMSTA",
+            "price": 3500,
+            "socket": "AM4",
+            "chipset": "B450",
+            "formFactor": "mATX",
+            "ramType": "DDR4",
+            "ramSlots": 4,
+            "maxRamMHz": 4000,
+            "m2Slots": 0,
+            "sataPorts": 6
+        },
+        {
+            "id": "mb-asus-prime-b650-plus",
+            "displayName": "ASUS PRIME B650-PLUS",
+            "brand": "ASUS",
+            "price": 13200,
+            "socket": "AM5",
+            "chipset": "B650",
+            "formFactor": "ATX",
+            "ramType": "DDR5",
+            "ramSlots": 4,
+            "maxRamMHz": 6400,
+            "m2Slots": 2,
+            "sataPorts": 4
+        },
+        {
+            "id": "mb-asus-tuf-gaming-b550-plus",
+            "displayName": "ASUS TUF GAMING B550-PLUS",
+            "brand": "ASUS",
+            "price": 8200,
+            "socket": "AM4",
+            "chipset": "B550",
+            "formFactor": "ATX",
+            "ramType": "DDR4",
+            "ramSlots": 4,
+            "maxRamMHz": 5100,
+            "m2Slots": 2,
+            "sataPorts": 6
+        },
+        {
+            "id": "mb-msi-pro-x670-p-wifi",
+            "displayName": "MSI PRO X670-P WIFI",
+            "brand": "MSI",
+            "price": 19800,
+            "socket": "AM5",
+            "chipset": "X670",
+            "formFactor": "ATX",
+            "ramType": "DDR5",
+            "ramSlots": 4,
+            "maxRamMHz": 6400,
+            "m2Slots": 3,
+            "sataPorts": 6
+        },
+        {
+            "id": "mb-msi-mpg-z790-carbon-wifi",
+            "displayName": "MSI MPG Z790 CARBON WIFI",
+            "brand": "MSI",
+            "price": 21000,
+            "socket": "LGA1700",
+            "chipset": "Z790",
+            "formFactor": "ATX",
+            "ramType": "DDR5",
+            "ramSlots": 4,
+            "maxRamMHz": 7600,
+            "m2Slots": 3,
+            "sataPorts": 6
+        }
+    ],
+    "rams": [
+        {
+            "id": "ram-kingston-fury-beast-ddr4-8gb",
+            "displayName": "Kingston FURY Beast DDR4 8GB",
+            "brand": "Kingston",
+            "price": 1200,
+            "type": "DDR4",
+            "sizeGB": 8,
+            "mhz": 2666,
+            "sticks": 1
+        },
+        {
+            "id": "ram-hkcmemory-hu40-ddr4-16gb",
+            "displayName": "HKCMEMORY HU40 DDR4 16GB",
+            "brand": "HKCMEMORY",
+            "price": 2100,
+            "type": "DDR4",
+            "sizeGB": 16,
+            "mhz": 3200,
+            "sticks": 1
+        },
+        {
+            "id": "ram-kingston-fury-beast-ddr4-32gb",
+            "displayName": "Kingston FURY Beast DDR4 32GB",
+            "brand": "Kingston",
+            "price": 5200,
+            "type": "DDR4",
+            "sizeGB": 32,
+            "mhz": 3200,
+            "sticks": 2
+        },
+        {
+            "id": "ram-kingston-fury-beast-ddr5-8gb",
+            "displayName": "Kingston Fury Beast DDR5 8GB",
+            "brand": "Kingston",
+            "price": 2200,
+            "type": "DDR5",
+            "sizeGB": 8,
+            "mhz": 4800,
+            "sticks": 1
+        },
+        {
+            "id": "ram-kingston-fury-beast-ddr5-16gb",
+            "displayName": "Kingston FURY Beast DDR5 16GB",
+            "brand": "Kingston",
+            "price": 4200,
+            "type": "DDR5",
+            "sizeGB": 16,
+            "mhz": 5200,
+            "sticks": 1
+        },
+        {
+            "id": "ram-corsair-vengeance-ddr5-32gb",
+            "displayName": "Corsair Vengeance DDR5 32GB",
+            "brand": "Corsair",
+            "price": 11500,
+            "type": "DDR5",
+            "sizeGB": 32,
+            "mhz": 6000,
+            "sticks": 2
+        }
+    ],
+    "coolers": [
+        {
+            "id": "cool-fantech-polar-lc240",
+            "displayName": "Fantech Polar LC240",
+            "brand": "Fantech",
+            "price": 3600,
+            "type": "240mm AIO",
+            "heightMM": 45,
+            "lga1700Kit": true,
+            "am5Kit": false,
+            "noiseLevelDba": 33,
+            "coolingType": "Liquid (AIO)",
+            "recommendedUse": "Ideal for mid-range gaming and productivity PCs needing efficient liquid cooling.",
+            "compatibilityNotes": "Supports Intel LGA1700/1200 and AMD AM4 sockets. Requires optional AM5 kit for Ryzen 7000 series."
+        },
+        {
+            "id": "cool-inplay-seaview-240-pro",
+            "displayName": "Inplay Seaview 240 Pro",
+            "brand": "Inplay",
+            "price": 2800,
+            "type": "240mm AIO",
+            "heightMM": 45,
+            "lga1700Kit": true,
+            "am5Kit": false,
+            "noiseLevelDba": 34,
+            "coolingType": "Liquid (AIO)",
+            "recommendedUse": "Good for moderate gaming or workstation setups seeking quiet liquid cooling.",
+            "compatibilityNotes": "Compatible with Intel LGA115x/LGA1200/LGA1700 and AMD AM4 sockets."
+        },
+        {
+            "id": "cool-inplay-seaview-360-pro",
+            "displayName": "Inplay Seaview 360 Pro",
+            "brand": "Inplay",
+            "price": 4200,
+            "type": "360mm AIO",
+            "heightMM": 60,
+            "lga1700Kit": true,
+            "am5Kit": false,
+            "noiseLevelDba": 35,
+            "coolingType": "Liquid (AIO)",
+            "recommendedUse": "Recommended for high-performance builds and overclocked CPUs.",
+            "compatibilityNotes": "Compatible with Intel LGA115x/LGA1200/LGA1700 and AMD AM4 sockets. May require AM5 kit for Ryzen 7000."
+        },
+        {
+            "id": "cool-inplay-s20",
+            "displayName": "Inplay S20",
+            "brand": "Inplay",
+            "price": 900,
+            "type": "Air",
+            "heightMM": 120,
+            "lga1700Kit": false,
+            "am5Kit": false,
+            "noiseLevelDba": 28,
+            "coolingType": "Air",
+            "recommendedUse": "Best for entry-level or office PCs with low TDP processors.",
+            "compatibilityNotes": "Supports Intel LGA115x and AMD AM4 sockets only. Not suitable for AM5 or LGA1700 platforms."
+        },
+        {
+            "id": "cool-inplay-s40",
+            "displayName": "Inplay S40",
+            "brand": "Inplay",
+            "price": 1200,
+            "type": "Air",
+            "heightMM": 150,
+            "lga1700Kit": false,
+            "am5Kit": false,
+            "noiseLevelDba": 30,
+            "coolingType": "Air",
+            "recommendedUse": "Suitable for budget gaming and mid-level CPUs.",
+            "compatibilityNotes": "Supports Intel LGA115x and AMD AM4 sockets. May need bracket upgrade for newer sockets."
+        },
+        {
+            "id": "cool-cooler-master-hyper-212-black-edition",
+            "displayName": "Cooler Master Hyper 212 Black Edition",
+            "brand": "Cooler Master",
+            "price": 1500,
+            "type": "Air",
+            "heightMM": 159,
+            "lga1700Kit": false,
+            "am5Kit": false,
+            "noiseLevelDba": 26,
+            "coolingType": "Air",
+            "recommendedUse": "Well-balanced option for gaming and general-purpose PCs.",
+            "compatibilityNotes": "Supports Intel LGA115x/1200 and AMD AM4 sockets. Optional bracket required for LGA1700 or AM5 CPUs."
+        },
+        {
+            "id": "cool-deepcool-ls720-se-360",
+            "displayName": "DeepCool LS720 SE 360",
+            "brand": "DeepCool",
+            "price": 8200,
+            "type": "360mm AIO",
+            "heightMM": 65,
+            "lga1700Kit": true,
+            "am5Kit": false,
+            "noiseLevelDba": 36,
+            "coolingType": "Liquid (AIO)",
+            "recommendedUse": "High-end cooling for performance CPUs and overclocked systems.",
+            "compatibilityNotes": "Supports Intel LGA1700/1200 and AMD AM4 sockets. AM5 bracket may be required for Ryzen 7000 CPUs."
+        },
+        {
+            "id": "cool-cooler-master-masterliquid-ml360r-rgb",
+            "displayName": "Cooler Master MasterLiquid ML360R RGB",
+            "brand": "Cooler Master",
+            "price": 7200,
+            "type": "360mm AIO",
+            "heightMM": 60,
+            "lga1700Kit": true,
+            "am5Kit": false,
+            "noiseLevelDba": 36,
+            "coolingType": "Liquid (AIO)",
+            "recommendedUse": "Premium cooling for gaming rigs and overclocked CPUs.",
+            "compatibilityNotes": "Supports Intel LGA1700 and AMD AM4 sockets. Requires optional AM5 mounting bracket for Ryzen 7000/9000 CPUs."
+        }
+    ],
+
+    "hdds": [
+        {
+            "id": "hdd-seagate-video-500gb-st500vm002",
+            "displayName": "Seagate Video 3.5\" HDD 500GB (ST500VM002)",
+            "brand": "Seagate",
+            "price": 1900,
+            "type": "HDD",
+            "sizeGB": 500,
+            "interfaceType": "SATA"
+        },
+        {
+            "id": "hdd-seagate-video-1tb-st1000vm002",
+            "displayName": "Seagate Video 3.5\" HDD 1TB (ST1000VM002)",
+            "brand": "Seagate",
+            "price": 2600,
+            "type": "HDD",
+            "sizeGB": 1000,
+            "interfaceType": "SATA"
+        }
+    ],
+    "ssds": [
+        {
+            "id": "ssd-ramsta-s800-128gb",
+            "displayName": "Ramsta S800 128GB SSD",
+            "brand": "Ramsta",
+            "price": 650,
+            "type": "SATA SSD",
+            "sizeGB": 128,
+            "interfaceType": "SATA"
+        },
+        {
+            "id": "ssd-ramsta-s800-256gb",
+            "displayName": "Ramsta S800 256GB SSD",
+            "brand": "Ramsta",
+            "price": 950,
+            "type": "SATA SSD",
+            "sizeGB": 256,
+            "interfaceType": "SATA"
+        },
+        {
+            "id": "ssd-ramsta-s800-512gb",
+            "displayName": "Ramsta S800 512GB SSD",
+            "brand": "Ramsta",
+            "price": 1550,
+            "type": "SATA SSD",
+            "sizeGB": 512,
+            "interfaceType": "SATA"
+        },
+        {
+            "id": "ssd-ramsta-s800-1tb",
+            "displayName": "Ramsta S800 1TB SSD",
+            "brand": "Ramsta",
+            "price": 2900,
+            "type": "SATA SSD",
+            "sizeGB": 1000,
+            "interfaceType": "SATA"
+        },
+        {
+            "id": "ssd-ramsta-s800-2tb",
+            "displayName": "Ramsta S800 2TB SSD",
+            "brand": "Ramsta",
+            "price": 5600,
+            "type": "SATA SSD",
+            "sizeGB": 2000,
+            "interfaceType": "SATA"
+        },
+        {
+            "id": "ssd-crucial-mx500-500gb",
+            "displayName": "Crucial MX500 500GB SSD",
+            "brand": "Crucial",
+            "price": 2200,
+            "type": "SATA SSD",
+            "sizeGB": 500,
+            "interfaceType": "SATA"
+        }
+    ],
+    "nvmes": [
+        {
+            "id": "nvme-samsung-970-evo-plus-1tb",
+            "displayName": "Samsung 970 EVO Plus 1TB",
+            "brand": "Samsung",
+            "price": 7700,
+            "type": "NVMe",
+            "sizeGB": 1000,
+            "interfaceType": "M.2 NVMe"
+        },
+        {
+            "id": "nvme-samsung-970-evo-plus-500gb",
+            "displayName": "Samsung 970 EVO Plus 500GB",
+            "brand": "Samsung",
+            "price": 4200,
+            "type": "NVMe",
+            "sizeGB": 500,
+            "interfaceType": "M.2 NVMe"
+        },
+        {
+            "id": "nvme-samsung-970-evo-plus-250gb",
+            "displayName": "Samsung 970 EVO Plus 250GB",
+            "brand": "Samsung",
+            "price": 2600,
+            "type": "NVMe",
+            "sizeGB": 250,
+            "interfaceType": "M.2 NVMe"
+        },
+        {
+            "id": "nvme-samsung-970-evo-plus-2tb",
+            "displayName": "Samsung 970 EVO Plus 2TB",
+            "brand": "Samsung",
+            "price": 14500,
+            "type": "NVMe",
+            "sizeGB": 2000,
+            "interfaceType": "M.2 NVMe"
+        }
+    ],
+    "psus": [
+        {
+            "id": "psu-inplay-gs-550",
+            "displayName": "InPlay GS 550 (550W)",
+            "brand": "InPlay",
+            "price": 2800,
+            "wattage": 550,
+            "efficiency": "80+",
+            "hasPCIE5": false
+        },
+        {
+            "id": "psu-corsair-cx650",
+            "displayName": "Corsair CX650 (650W)",
+            "brand": "Corsair",
+            "price": 6500,
+            "wattage": 650,
+            "efficiency": "80+ Bronze",
+            "hasPCIE5": false
+        },
+        {
+            "id": "psu-inplay-gs-750",
+            "displayName": "InPlay GS 750 (750W)",
+            "brand": "InPlay",
+            "price": 4200,
+            "wattage": 750,
+            "efficiency": "80+",
+            "hasPCIE5": false
+        },
+        {
+            "id": "psu-inplay-ak400",
+            "displayName": "InPlay AK400 (400W)",
+            "brand": "InPlay",
+            "price": 1700,
+            "wattage": 400,
+            "efficiency": "80+",
+            "hasPCIE5": false
+        },
+        {
+            "id": "psu-cooler-master-mwe-white-750",
+            "displayName": "Cooler Master MWE White 750W",
+            "brand": "Cooler Master",
+            "price": 5100,
+            "wattage": 750,
+            "efficiency": "80+ White",
+            "hasPCIE5": false
+        },
+        {
+            "id": "psu-corsair-rm850x-850",
+            "displayName": "Corsair RM850x 850W",
+            "brand": "Corsair",
+            "price": 13500,
+            "wattage": 850,
+            "efficiency": "80+ Gold",
+            "hasPCIE5": true
+        }
+    ],
+    "gpus": [
+        {
+            "id": "gpu-gigabyte-rtx3050-eagle-oc-8gb",
+            "displayName": "Gigabyte RTX 3050 Eagle OC 8GB",
+            "brand": "Gigabyte",
+            "price": 15000,
+            "lengthMM": 240,
+            "tdp": 130,
+            "memorySizeGB": 8,
+            "coreClockMHz": 1550,
+            "boostClockMHz": 1807,
+            "recommendedUse": "1080p gaming and productivity",
+            "compatibilityNotes": "Fits most mid-tower cases. Requires one 8-pin PCIe power connector and PCIe x16 slot."
+        },
+        {
+            "id": "gpu-gigabyte-rx9060-xt-gaming-oc",
+            "displayName": "Gigabyte RX 9060 XT Gaming OC",
+            "brand": "Gigabyte",
+            "price": 26000,
+            "lengthMM": 270,
+            "tdp": 200,
+            "memorySizeGB": 12,
+            "coreClockMHz": 2100,
+            "boostClockMHz": 2480,
+            "recommendedUse": "1440p high-performance gaming",
+            "compatibilityNotes": "Ensure case has clearance for 270mm GPU and PSU can handle 200W GPU load."
+        },
+        {
+            "id": "gpu-nvidia-gtx-750-ti",
+            "displayName": "NVIDIA GTX 750 Ti",
+            "brand": "NVIDIA",
+            "price": 4200,
+            "lengthMM": 210,
+            "tdp": 60,
+            "memorySizeGB": 2,
+            "coreClockMHz": 1020,
+            "boostClockMHz": 1085,
+            "recommendedUse": "Entry-level gaming and light workloads",
+            "compatibilityNotes": "Compact design fits small form factor cases. Low power—no external PCIe power needed."
+        },
+        {
+            "id": "gpu-msi-rtx3060-12gb",
+            "displayName": "MSI RTX 3060 12GB",
+            "brand": "MSI",
+            "price": 22000,
+            "lengthMM": 250,
+            "tdp": 170,
+            "memorySizeGB": 12,
+            "coreClockMHz": 1320,
+            "boostClockMHz": 1777,
+            "recommendedUse": "1080p and 1440p gaming, mid-tier productivity",
+            "compatibilityNotes": "Requires one 8-pin PCIe power connector. Fits most ATX cases with 250mm GPU clearance."
+        },
+        {
+            "id": "gpu-sapphire-rx9060-xt-16gb",
+            "displayName": "Sapphire RX 9060 XT 16GB",
+            "brand": "Sapphire",
+            "price": 27500,
+            "lengthMM": 280,
+            "tdp": 220,
+            "memorySizeGB": 16,
+            "coreClockMHz": 2300,
+            "boostClockMHz": 2580,
+            "recommendedUse": "1440p to 4K gaming and rendering",
+            "compatibilityNotes": "Ensure case supports 280mm GPU and PSU has enough wattage for high TDP GPUs."
+        }
+    ]
+}

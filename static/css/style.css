@@ -1,0 +1,269 @@
+/* -------------------------
+   ARsemble style.css (paste entire file)
+   Replaces old CSS — uses your requested palette & font
+   ------------------------- */
+
+:root {
+  --app-font: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --aria-bg: #e8edf1;
+  --user-bg: #d0f0e0;
+  --chip-bg: #ffd7d0;
+  --bg: #f8fafc;
+  --accent: #111827;
+  --border: #e5e7eb;
+  --bubble-shadow: rgba(0, 0, 0, 0.08);
+  --radius: 16px;
+
+  /* requested font stack */
+  --app-font: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+  font-family: var(--app-font);
+  font-weight: var(--font-weight-regular);
+}
+
+.aria-bubble {
+  font-weight: var(--font-weight-medium);
+}
+
+.suggest-btn {
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Global */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--accent);
+  display: flex;
+  justify-content: center;
+
+  /* apply font everywhere */
+  font-family: var(--app-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Chat container: keep top padding smaller so it doesn't appear pre-typed */
+.chat-container {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem;
+  /* slightly reduced top padding */
+  box-sizing: border-box;
+  height: calc(100vh - 0px);
+}
+
+/* Aria greeting bubble (inside scroll area) */
+.aria-bubble {
+  background: var(--aria-bg);
+  color: var(--accent);
+  align-self: flex-start;
+  padding: 1px 10px;
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px var(--bubble-shadow);
+  font-family: var(--app-font);
+  font-weight: 700;
+  line-height: 1.4;
+  max-width: 92%;
+}
+
+/* Suggestions (chips) */
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Clickable chip style — not full width, uses exact pink */
+.suggest-btn {
+  background: var(--chip-bg);
+  color: var(--accent);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 20px;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--app-font);
+  transition: background 0.12s ease;
+  max-width: fit-content;
+  /* prevents full-width chips */
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.suggest-btn:hover {
+  background: #ffc4bc;
+  /* slightly darker pink on hover */
+}
+
+/* Main scrollable chat area (flex + overflow) */
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  padding: 10px 0 96px;
+  /* bottom padding reserved for fixed input */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Message bubbles */
+.message {
+  max-width: 85%;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  line-height: 1.45;
+  word-wrap: break-word;
+  box-shadow: 0 1px 2px var(--bubble-shadow);
+  font-family: var(--app-font);
+}
+
+/* aria vs user */
+.message.aria {
+  background: var(--aria-bg);
+  align-self: flex-start;
+  color: var(--accent);
+  font-family: var(--app-font);
+  font-size: 14px;
+}
+
+.message.user {
+  background: var(--user-bg);
+  align-self: flex-end;
+  color: var(--accent);
+  font-family: var(--app-font);
+  font-weight: 600;
+  color: #333333;
+  font-size: 14px;
+}
+
+/* Fixed input bar at bottom */
+.chat-input {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: env(safe-area-inset-bottom, 12px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  gap: 10px;
+  padding: 10px 12px;
+  border-top: 0px solid var(--border);
+  background: rgba(255, 255, 255, 0.00);
+  /* fully transparent — input pill handles colour */
+  z-index: 60;
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* Input pill wrapper (optional visual pill) */
+/* If you want an input pill background, wrap textarea in a container with .input-pill */
+.input-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: transparent;
+  /* keep transparent — keeps chip pink off */
+  box-shadow: 0 6px 20px rgba(2, 6, 23, 0.04);
+}
+
+/* Textarea: auto-growing, no scrollbar, using requested font.
+   Important: background is NOT the chip color (transparent here), border subtle */
+.chat-input textarea {
+  flex: 1;
+  resize: none;
+  height: 44px;
+  min-height: 44px;
+  max-height: 160px;
+  overflow-y: hidden;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-family: var(--app-font);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.3;
+  outline: none;
+  background: #ffd7d0;
+  color: var(--accent);
+  box-sizing: border-box;
+}
+
+/* hide native textarea scroll thumb in WebKit */
+.chat-input textarea::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Firefox */
+.chat-input textarea {
+  scrollbar-width: none;
+}
+
+/* Send button (round) — keep it using the user green for icon only */
+.chat-input button {
+  border: none;
+  background: var(--user-bg);
+  /* circular icon uses user color */
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--accent);
+  display: inline-grid;
+  place-items: center;
+  box-shadow: 0 4px 14px rgba(2, 6, 23, 0.06);
+}
+
+/* reduce top gap that looked like 2-lines typed in:
+   If you still want no gap at all, change padding-top to 0 */
+.chat-container>.aria-bubble:first-child {
+  margin-top: 6px;
+}
+
+/* responsive tweaks */
+@media (max-width: 640px) {
+  .chat-container {
+    padding: 8px 12px;
+  }
+
+  .message {
+    font-size: 14px;
+  }
+
+  .aria-bubble {
+    padding: 10px 14px;
+  }
+
+  .suggest-btn {
+    padding: 8px 14px;
+  }
+}
