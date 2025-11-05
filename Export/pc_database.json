@@ -354,7 +354,9 @@
             "ramSlots": 2,
             "maxRamMHz": 4800,
             "m2Slots": 1,
-            "sataPorts": 4
+            "sataPorts": 4,
+            "recommendedUse": "Ideal for budget Intel 12th–13th Gen builds focused on office productivity or light gaming.",
+            "compatibilityNotes": "Supports Intel LGA1700 CPUs (12th/13th Gen). Compatible with DDR4 memory only; no CPU overclocking."
         },
         {
             "id": "mb-msi-b450m-a-pro-max-ii",
@@ -368,7 +370,9 @@
             "ramSlots": 4,
             "maxRamMHz": 4133,
             "m2Slots": 0,
-            "sataPorts": 6
+            "sataPorts": 6,
+            "recommendedUse": "Best suited for Ryzen 3 to Ryzen 7 builds; great for entry to mid-range gaming or general workloads.",
+            "compatibilityNotes": "Supports most AMD Ryzen CPUs (1st–3rd Gen). May require BIOS update for Ryzen 5000 series CPUs."
         },
         {
             "id": "mb-msi-pro-h610m-s-ddr4-2",
@@ -382,7 +386,9 @@
             "ramSlots": 2,
             "maxRamMHz": 4800,
             "m2Slots": 1,
-            "sataPorts": 4
+            "sataPorts": 4,
+            "recommendedUse": "Solid option for affordable Intel 12th/13th Gen systems for school or small business use.",
+            "compatibilityNotes": "Designed for Intel 12th–13th Gen processors. Requires DDR4 memory modules."
         },
         {
             "id": "mb-ramsta-rs-b450mp",
@@ -396,7 +402,9 @@
             "ramSlots": 4,
             "maxRamMHz": 4000,
             "m2Slots": 0,
-            "sataPorts": 6
+            "sataPorts": 6,
+            "recommendedUse": "Good value motherboard for budget Ryzen builds and basic gaming setups.",
+            "compatibilityNotes": "Supports AMD Ryzen 1st–3rd Gen CPUs. May require BIOS update for newer Ryzen 5000 series."
         },
         {
             "id": "mb-asus-prime-b650-plus",
@@ -410,7 +418,9 @@
             "ramSlots": 4,
             "maxRamMHz": 6400,
             "m2Slots": 2,
-            "sataPorts": 4
+            "sataPorts": 4,
+            "recommendedUse": "Excellent choice for Ryzen 7000-series users seeking modern performance and future-proof DDR5 support.",
+            "compatibilityNotes": "Compatible with AMD Ryzen 7000 (AM5) CPUs only. Supports PCIe 5.0 storage and DDR5 RAM modules."
         },
         {
             "id": "mb-asus-tuf-gaming-b550-plus",
@@ -424,7 +434,9 @@
             "ramSlots": 4,
             "maxRamMHz": 5100,
             "m2Slots": 2,
-            "sataPorts": 6
+            "sataPorts": 6,
+            "recommendedUse": "Designed for Ryzen 3000/5000 gamers who want reliability, strong VRMs, and PCIe 4.0 support.",
+            "compatibilityNotes": "Works with AMD Ryzen 3000 and 5000 CPUs. Requires BIOS update for newer processors."
         },
         {
             "id": "mb-msi-pro-x670-p-wifi",
@@ -438,7 +450,9 @@
             "ramSlots": 4,
             "maxRamMHz": 6400,
             "m2Slots": 3,
-            "sataPorts": 6
+            "sataPorts": 6,
+            "recommendedUse": "Professional-grade AM5 motherboard with Wi-Fi 6E and strong connectivity for high-end Ryzen 7000 builds.",
+            "compatibilityNotes": "Supports AMD Ryzen 7000 processors only. Offers PCIe 5.0 and DDR5 compatibility for next-gen performance."
         },
         {
             "id": "mb-msi-mpg-z790-carbon-wifi",
@@ -452,7 +466,9 @@
             "ramSlots": 4,
             "maxRamMHz": 7600,
             "m2Slots": 3,
-            "sataPorts": 6
+            "sataPorts": 6,
+            "recommendedUse": "Premium choice for Intel 12th–14th Gen enthusiasts and creators requiring top-end features and OC potential.",
+            "compatibilityNotes": "Supports Intel LGA1700 CPUs (12th–14th Gen). Compatible with DDR5 memory only. Enables CPU and RAM overclocking."
         }
     ],
     "rams": [

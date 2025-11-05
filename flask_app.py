@@ -23,6 +23,7 @@ app = Flask(__name__)
 CLIENT = genai.Client(api_key=API_KEY)
 
 # ========== DATABASE LOADING ==========
+# Compute the path to Export/pc_database.json relative to this file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "Export", "pc_database.json")
 
@@ -32,8 +33,14 @@ if not os.path.exists(DB_PATH):
         "Create an 'Export' folder beside flask_app.py and place pc_database.json inside it."
     )
 
-with open(DB_PATH, "r", encoding="utf-8") as f:
-    DATABASE = json.load(f)
+# Load the database (with safer JSON error reporting)
+try:
+    with open(DB_PATH, "r", encoding="utf-8") as f:
+        DATABASE = json.load(f)
+except json.JSONDecodeError as je:
+    raise SystemExit(f"Failed to parse JSON database at {DB_PATH}: {je}")
+except Exception as e:
+    raise SystemExit(f"Failed to load database at {DB_PATH}: {e}")
 
 app.logger.info(
     f"Loaded component database from {DB_PATH} "
@@ -82,6 +89,8 @@ def looks_like_greeting(text: str) -> bool:
 
 
 # ========== ROUTES ==========
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -96,95 +105,17 @@ def check_compat():
     if re.search(
         r"\b(smfp|smfp computer|smfp computer trading)\b", query, flags=re.IGNORECASE
     ):
-        desc = (
+        text = (
             "SMFP Computer Trading is a trusted computer hardware retailer based in Quiapo, Manila. "
             "They are known for providing quality PC components and excellent customer service, "
-            "serving both gamers and builders looking for reliable parts at fair prices."
-        )
-        info = (
-            "\n\nFor more info:\n"
+            "serving both gamers and builders looking for reliable parts at fair prices.\n\n"
+            "For more info:\n"
             "Address: 594 Nepomuceno St, Quiapo, Manila\n"
             "Email: sherlopilarco@yahoo.com\n"
-            "Contact: 0949-883-7098\n"
+            "Contact No.: 0949-883-7098\n"
             "Closing hours: 6:00 PM – 6:30 PM"
         )
-        return (desc + info, 200, {"Content-Type": "text/plain; charset=utf-8"})
-
-    # --- List and Recommendation Handler (latest hardware OR from database) ---
-    if re.search(
-        r"\b(latest|new|newest|recent|2025|2024|best|recommended)\b",
-        query,
-        flags=re.IGNORECASE,
-    ):
-        # --- Latest hardware info via Gemini (outside database) ---
-        try:
-            gemini_prompt = (
-                f"List the latest {query} available as of 2025. "
-                f"If 2025 data isn't available yet, start your response with "
-                f"'Sorry, data for 2025 isn’t available yet. Here’s a list of 2024 models instead:' "
-                f"then list 4 to 6 items in this format:\n\n"
-                f"- **Product Name (Category)**\n"
-                f"  - Key spec 1\n"
-                f"  - Key spec 2\n"
-                f"  - Recommended use\n"
-                f"  - Compatibility or brief remark\n\n"
-                f"Keep it short, factual, and neatly formatted in plain Markdown bullets. "
-                f"Do NOT use emojis or tables. Provide 4–6 items where possible."
-            )
-            resp = CLIENT.models.generate_content(
-                model="gemini-2.5-flash-lite",
-                contents=gemini_prompt,
-            )
-            
-        except Exception as e:
-            app.logger.warning("Gemini latest list failed: %s", e)
-            # fall through to DB-based matching if Gemini fails
-
-    # --- Database-based list recommendation (e.g., AM4 motherboards, DDR4 RAM) ---
-    db_keywords = {
-        "motherboards": ["motherboard", "am4", "am5", "b450", "b550", "x570", "b650"],
-        "cpus": ["cpu", "processor", "ryzen", "intel", "core", "i5", "i7", "i9"],
-        "gpus": ["gpu", "graphics", "rtx", "gtx", "rx", "radeon"],
-        "rams": ["ram", "memory", "ddr4", "ddr5"],
-        "storages": ["ssd", "nvme", "hdd", "storage", "hard drive"],
-        "psus": ["psu", "power supply", "watt"],
-        "coolers": ["cooler", "aio", "liquid", "air cooler"],
-    }
-
-    matched_cat = None
-    for cat, kws in db_keywords.items():
-        if any(kw in query.lower() for kw in kws):
-            matched_cat = cat
-            break
-
-    if matched_cat:
-        items = DATABASE.get(matched_cat, [])
-        if not items:
-            return (
-                f"I couldn’t find any {matched_cat} in the database.",
-                200,
-                {"Content-Type": "text/plain; charset=utf-8"},
-            )
-
-        # Try to filter (AM4, DDR4, model tokens, etc.)
-        filtered = []
-        qlow = query.lower()
-        qtokens = set(re.findall(r"\w+", qlow))
-        for it in items:
-            dn = (it.get("displayName") or "").lower()
-            # match if any token from the query appears in the displayName OR common keywords match
-            if qtokens & set(re.findall(r"\w+", dn)):
-                filtered.append(it)
-
-        shown = filtered if filtered else items[:6]
-        intro = f"Here are some {matched_cat.replace('s','')}s from the database that match your request:"
-        bullets = "\n".join([f"- **{it.get('displayName')}**" for it in shown[:8]])
-
-        return (
-            f"{intro}\n\n{bullets}",
-            200,
-            {"Content-Type": "text/plain; charset=utf-8"},
-        )
+        return (text, 200, {"Content-Type": "text/plain; charset=utf-8"})
 
     # --- Quick deterministic "specs" handler (returns DB specs as invisible-border table) ---
     if re.search(
@@ -194,6 +125,7 @@ def check_compat():
     ):
         qlow = query.lower()
 
+        # fallback simple component finder
         def find_component(name_lower):
             for cat in (
                 "motherboards",
@@ -214,6 +146,7 @@ def check_compat():
                     dn = (item.get("displayName") or "").lower()
                     if name_lower in dn or dn in name_lower:
                         return item
+            # fallback try everything
             for cat, items in DATABASE.items():
                 if isinstance(items, list):
                     for item in items:
@@ -279,6 +212,7 @@ def check_compat():
             found = find_component(name_norm)
 
         if found:
+            # build basic context
             comp_name = found.get("displayName", "This component")
             brand_name = (found.get("brand") or "").strip()
             price_val = found.get("price")
@@ -289,6 +223,7 @@ def check_compat():
                     category_guess = cat
                     break
 
+            # Determine usage/budget heuristics (kept for other logic if needed)
             usage = "general-purpose builds"
             budget = "mid-range budget"
             try:
@@ -314,19 +249,15 @@ def check_compat():
             # --- Ask Gemini to generate a short 2-sentence BRAND explanation if brand exists,
             #     otherwise fall back to component description ---
             try:
-                if brand_name:
-                    gemini_prompt = (
-                        f"Write a concise two-sentence description of the brand '{brand_name}' "
-                        "in the context of PC hardware. Mention what the brand is generally known for "
-                        "(e.g., reliability, value, gaming focus, cooling, storage, motherboards, GPUs, etc.). "
-                        "Use a neutral, informative tone and keep it exactly two short sentences."
-                    )
-                else:
-                    gemini_prompt = (
-                        f"Write a concise two-sentence description of the PC component '{comp_name}'. "
-                        "Clearly state what type of component it is and what it does. "
-                        "Use a neutral, informative tone and keep it exactly two short sentences."
-                    )
+                gemini_prompt = (
+                    f"Write one short sentence describing the PC component '{comp_name}' "
+                    f"built by {brand_name if brand_name else 'its manufacturer'}. "
+                    "Start the sentence with the component name (e.g., 'ASUS PRIME B650-PLUS is...'). "
+                    "Include what type of part it is (like motherboard, CPU, GPU, PSU, etc.) "
+                    "and mention its purpose or key advantage (e.g., performance, compatibility, or reliability). "
+                    "Keep it natural and professional — no marketing words like 'ultimate' or 'amazing'. "
+                    "Do not add extra sentences or introductions."
+                )
 
                 gemini_resp = CLIENT.models.generate_content(
                     model="gemini-2.5-flash-lite",
@@ -349,6 +280,7 @@ def check_compat():
 
             intro_html = f"<p>{desc_text}</p><p><b>{comp_name} Specifications:</b></p>"
 
+            # Build HTML table from keys excluding displayName and brand
             rows = []
             for k, v in found.items():
                 if k in ("displayName", "brand", "id"):
@@ -389,6 +321,7 @@ def check_compat():
                     200,
                     {"Content-Type": "text/html; charset=utf-8"},
                 )
+        # else fall through to normal model handling
 
     # --- Robust deterministic "price" handler (replace previous price handler) ---
     if re.search(
@@ -558,7 +491,7 @@ def check_compat():
             except Exception:
                 pmin_s = str(pmin)
                 pmax_s = str(pmax)
-            stores_line = "Prices vary depending on the store. In the Philippines, check SMFP Computer Trading (recommended), PC Express, DynaQuest, EasyPC, or DataBlitz."
+            stores_line = "Prices vary depending on the store. In the Philippines, check SMFP Computer (recommended), PC Express, DynaQuest, EasyPC, or DataBlitz."
             return (
                 f"I don't have that exact product in the database. Based on similar items, an estimated price range is {pmin_s} to {pmax_s}. {stores_line}",
                 200,
@@ -654,19 +587,59 @@ def check_compat():
         "594 J. Nepomuceno St, Quiapo, Manila, 1001 Metro Manila — known for offering quality parts and excellent service.\n\n"
         f"Available parts (for reference): {db_summary}\n\n"
         "Behavior:\n"
-        "- If asked about compatibility between hardware (e.g. 'Is CPU X compatible with Motherboard Y?'), "
-        "respond in this exact format: 'Yes. <brief reason>' or 'No. <brief reason>'.\n"
-        "- When asked for definitions or general PC information (e.g. 'What is a motherboard?'), answer in an educational tone, "
-        "using 3 to 5 short sentences. Be clear and concise.\n"
-        "- If the user asks for the latest or newest PC components (e.g. 'latest GPU 2025' or 'new CPU this year'), "
-        "you may answer using your general market knowledge. "
-        "If the requested year is beyond available information, mention the latest year you know (for example, if asked about 2026, give 2025 data instead).\n"
+        "- If the question can be answered with 'yes' or 'no', respond only with that and a brief reason.\n"
+        "- When asked about hardware compatibility (e.g., 'Is CPU X compatible with Motherboard Y?'), "
+        "respond strictly in one of these formats:\n"
+        "  • 'Yes. They are COMPATIBLE because <brief reason>.'\n"
+        "  • 'No. They are INCOMPATIBLE because <brief reason>.'\n"
+        "- When asked for definitions or general PC information (e.g., 'What is a motherboard?'), respond in an educational tone using 3–5 short, clear sentences.\n"
+        "- When the user asks using the format '<component> compatible <component type>' (e.g., "
+        "'MSI Pro H610M S DDR4 compatible CPU' or 'MSI Pro H610M S DDR4 compatible RAM'), display all compatible components "
+        "from the database based on these rules:\n"
+        "  Then display them as bullet points (•)\n"
+        "  • Motherboard → CPU: Match by CPU socket type.\n"
+        "  • Motherboard → RAM: Match by supported DDR generation (e.g., DDR4, DDR5).\n"
+        "  • CPU → GPU: Check for potential bottleneck compatibility.\n"
+        "  • CPU → CPU Cooler: Match by CPU socket type.\n"
+        "  • PSU → GPU + Motherboard + CPU: Ensure total wattage supports all components plus a 100W safety buffer.\n"
+        "  • Storage drives: Assume all are compatible.\n\n"
+        "- When asked for definitions or general PC information (e.g., 'What is a motherboard?'), respond in an educational tone using 3–5 short, clear sentences.\n"
+        "- If the user asks for the latest or newest PC components (for example: 'latest GPU 2025', 'new CPU this year', 'latest RAM 2025', 'new motherboard 2025', 'latest PSU', 'new NVMe 2025'), you may use your general market knowledge beyond the provided database to answer. When listing latest items, follow these rules:\n"
+        "  1) Prefer items from the requested year if a year is specified (e.g., 2025). If the user does not specify a year, prefer the latest year you reliably know (e.g., 2025).\n"
+        "  2) If there are no items for the requested year, try the previous year (2024). If none for 2024, try 2023, and so on, moving backward year-by-year until you find relevant items.\n"
+        "  3) If the user explicitly asks for a specific year (for example: 'latest GPU 2025') and you find no suitable items for that year, respond exactly like this at the start of your reply:\n"
+        '     "Sorry, there are currently no latest [CATEGORY] for [YEAR], but here are the latest [CATEGORY] in [FALLBACK_YEAR]:"\n'
+        '     Replace [CATEGORY], [YEAR], and [FALLBACK_YEAR] appropriately (e.g., "Sorry, there are currently no latest GPU for 2025, but here are the latest GPU in 2024:"). Then list items as below.\n'
+        "  4) When items are available, list **3 to 5** entries in bullet form. Each bullet must contain the model name followed by a short one-sentence description (tier/features/reputation). Use this example formatting:\n"
+        "     Here are some of the latest GPUs you might consider for your PC-building project:\n"
+        "  Then display them as bullet points (•)\n"
+        "     • ASUS GeForce RTX 5090 — Top-tier enthusiast GPU for 2025; often called the uncontested best graphics card this year.\n"
+        "     • Gigabyte Radeon RX 9060 XT 16 GB — A newer high-end card offering strong price-to-performance.\n"
+        "     • ASUS Prime Radeon RX 9060 XT 16 GB — Alternate brand version of the RX 9060 XT offering similar performance.\n"
+        "  5) Apply this behavior for all component categories including motherboards, CPUs, GPUs, RAM, storage drives (HDD, SSD, NVMe), CPU coolers, and power supplies (PSUs). If your list items come from general market knowledge, be explicit about the year associated with each item (e.g., '2025').\n"
+        "  6) If your list includes items that are present in the provided database, prefer those database items first, but still include additional relevant market items if needed to reach 3–5 results.\n"
+        "  7) Keep bullets concise (1 sentence each), neutral in tone, and avoid long paragraphs. Do NOT include links or long spec tables in this response — name + short blurb only.\n"
         "- When the question involves CPU vs GPU compatibility, determine compatibility based on performance balance (bottleneck analysis) rather than socket. "
         "State whether the pairing is well-balanced or which side may bottleneck the other, and include an estimated bottleneck percentage (see ranges below). Keep this explanation within 3 to 5 sentences.\n"
-        "    * Well-balanced: bottleneck minimal (0–5%).\n"
-        "    * CPU-limits-GPU: estimate ~10–30% CPU bottleneck depending on severity.\n"
-        "    * GPU-limits-CPU: estimate ~10–20% GPU bottleneck.\n"
-        "- If the user asks where to buy PC components or mentions shops, list SMFP Computer first as the top recommended store (include the address), followed by other known computer retailers in the Philippines only (for example: PC Express, DynaQuest, EasyPC, DataBlitz). Describe SMFP Computer positively.\n"
+        "  Then display them as bullet points (•)\n"
+        "    • Well-balanced: bottleneck minimal (0–5%).\n"
+        "    • CPU-limits-GPU: estimate ~10–30% CPU bottleneck depending on severity.\n"
+        "    • GPU-limits-CPU: estimate ~10–20% GPU bottleneck.\n"
+        "- If the user asks where to buy PC components or mentions computer shops, respond with:\n"
+        "  'Here are PC hardware stores that are reputable and have both physical and online presence. These might be great stops for your PC-building part-selection research.'\n"
+        "  Then display them as bullet points (•) in this exact order and with short positive descriptions:\n"
+        "  • SMFP Computer Trading — Trusted store in Quiapo, Manila offering quality PC components and excellent customer service.\n"
+        "  • PC Express — One of the largest and most established PC retailers in the Philippines, with wide store coverage and online availability.\n"
+        "  • DynaQuest PC — Known for reliable mid-to-high-end gaming builds, with competitive prices and nationwide delivery.\n"
+        "  • EasyPC — Popular for budget-friendly PC parts and online promos; great for value-seeking builders.\n"
+        "  • DataBlitz — Well-known tech retail chain that also carries PC peripherals and gaming accessories.\n"
+        "  • PCHub — A reputable tech hub in Metro Manila offering a variety of enthusiast and custom build components.\n\n"
+        "- If the user specifically mentions a location (e.g., 'near Quezon City', 'Cebu', or 'Davao'), actively check online sources to find nearby branches or delivery coverage. Prefer a Google Maps search (or the web) to confirm store branches, opening hours, and delivery availability. "
+        "  - If web access (e.g., Google Maps) is available, list stores that have a branch or reliable delivery to the mentioned location and include a short note about proximity or availability (for example: 'Has a branch ~2.3 km from Quezon City Hall' or 'Delivers to Cebu City'). Cite or reference the source you used (e.g., 'source: Google Maps' or the store's official site). "
+        "  - If web access is not available at runtime or no reliable online info is found, fall back to the known reputable stores list and say you could not verify branch locations right now. "
+        "  - Keep the reply concise and display the stores as bullets, starting with the intro: "
+        "    'Here are PC hardware stores that are reputable and have both physical and online presence. These might be great stops for your PC-building part-selection research.' "
+        "  - Always list SMFP Computer Trading first (include the address) and follow with the other recommended retailers and short descriptions (PC Express, DynaQuest, EasyPC, DataBlitz, PCHub)."
         "- For recommendations, builds, or part-selection guidance, strictly use only the components found in the provided database.\n"
         "- If the question clearly has no relation to PC components or computing hardware, respond with that line. "
         "However, if the question seems like a clarification or follow-up (for example, it refers to something mentioned earlier), "
@@ -698,20 +671,24 @@ def check_compat():
     # --- Output cleaning ---
     def clean_output(s: str) -> str:
         s = s.strip()
+        # remove triple-backtick fences
         if s.startswith("```") and s.endswith("```"):
             lines = s.splitlines()
             if len(lines) >= 3:
                 s = "\n".join(lines[1:-1])
+        # remove surrounding single or double quotes
         if (s.startswith('"') and s.endswith('"')) or (
             s.startswith("'") and s.endswith("'")
         ):
             s = s[1:-1]
+        # Normalize unicode (avoid unicode_escape decode which mangles UTF-8)
         try:
             import unicodedata
 
             s = unicodedata.normalize("NFC", s)
         except Exception:
             pass
+        # Trim stray backticks/leading/trailing whitespace
         s = re.sub(r"^[`\\s]+", "", s)
         s = re.sub(r"[`\\s]+$", "", s)
         return s
@@ -750,6 +727,5 @@ def check_compat():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.getenv("FLASK_RUN_PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
