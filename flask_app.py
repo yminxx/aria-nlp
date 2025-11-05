@@ -15,7 +15,7 @@ if not API_KEY:
 # Import the GenAI client
 try:
     from google import genai
-except Exception as e:
+except Exception:
     raise SystemExit("google-genai missing. Install with: pip install google-genai")
 
 # Flask app setup
@@ -88,9 +88,326 @@ def looks_like_greeting(text: str) -> bool:
     return False
 
 
+# ---------------------------
+# Helpers used by build recommender
+# ---------------------------
+def _safe_float(v):
+    try:
+        if v is None:
+            return None
+        if isinstance(v, (int, float)):
+            return float(v)
+        s = str(v).strip().lower().replace("php", "").replace("₱", "").replace(",", "")
+        m = re.match(r"^([\d\.]+)\s*k$", s)
+        if m:
+            return float(m.group(1)) * 1000.0
+        digits = re.sub(r"[^\d\.]+", "", s)
+        return float(digits) if re.search(r"[\d\.]", digits) else None
+    except Exception:
+        return None
+
+
+def _format_php(n):
+    try:
+        return f"₱{int(round(n)):,}"
+    except Exception:
+        return str(n)
+
+
+# ---------------------------
+# Deterministic Build Recommender (DB-driven) — returns 2-3 options, HTML table format
+# ---------------------------
+def recommend_build_from_db(query_text: str):
+    """
+    DB-only build recommender that returns HTML.
+    Produces 2-3 build options (min 2, max 3). Uses only items from DATABASE.
+    Each option's component list is returned as an HTML table (Component | Price)
+    similar to the component-specs table used elsewhere.
+    """
+    q = (query_text or "").lower()
+
+    # --- Detect budget ---
+    budget = None
+    m = re.search(r"(?:(?:php|₱)\s*)?([0-9\.,]+)\s*(k)?", q)
+    if m:
+        try:
+            num = m.group(1).replace(",", "")
+            val = float(num)
+            if m.group(2):
+                val *= 1000.0
+            budget = val
+        except Exception:
+            budget = None
+    else:
+        m2 = re.search(r"(\d+)\s*k\b", q)
+        if m2:
+            try:
+                budget = float(m2.group(1)) * 1000.0
+            except Exception:
+                budget = None
+
+    # --- Detect usage ---
+    usage = "general"
+    if re.search(r"\b(gaming|game|fps|esports)\b", q):
+        usage = "gaming"
+    elif re.search(
+        r"\b(productiv|workstation|render|content|video edit|photo edit)\b", q
+    ):
+        usage = "productivity"
+    elif re.search(r"\b(office|home office|small business)\b", q):
+        usage = "office"
+
+    # --- Allocation ---
+    alloc = {
+        "motherboards": 0.10,
+        "cpus": 0.25,
+        "rams": 0.10,
+        "storages": 0.06,
+        "coolers": 0.04,
+        "gpus": 0.35,
+        "psus": 0.06,
+    }
+
+    def score_item(it, target_price):
+        price = _safe_float(it.get("price"))
+        if price is None:
+            return float("inf")
+        diff = abs(price - target_price) / max(1.0, target_price)
+        desc = " ".join(
+            [str(it.get("brand") or "").lower(), (it.get("displayName") or "").lower()]
+        )
+        score = diff
+        if usage == "gaming" and re.search(
+            r"\b(gaming|xt|rtx|rx|oc|super|ti|xt)\b", desc
+        ):
+            score *= 0.85
+        if usage == "productivity" and re.search(
+            r"\b(workstation|pro|xeon|threadripper|radeon pro|quadro|w)\b", desc
+        ):
+            score *= 0.85
+        return score
+
+    def top_n_for_cat(cat_name, target_price, n=5):
+        items = DATABASE.get(cat_name, []) or []
+        scored = []
+        for it in items:
+            p = _safe_float(it.get("price"))
+            if p is None:
+                continue
+            s = score_item(it, target_price)
+            scored.append((s, p, it))
+        scored.sort(key=lambda x: (x[0], x[1]))
+        return [it for _, _, it in scored[:n]]
+
+    # --- Estimate budget if missing ---
+    if budget is None:
+        all_prices = []
+        for cat, items in DATABASE.items():
+            if isinstance(items, list):
+                for it in items:
+                    p = _safe_float(it.get("price"))
+                    if p:
+                        all_prices.append(p)
+        if not all_prices:
+            return (
+                "I could not estimate a budget because the database lacks price data.",
+                200,
+                {"Content-Type": "text/plain; charset=utf-8"},
+            )
+        all_prices.sort()
+        median = all_prices[len(all_prices) // 2]
+        budget = median * 5.0
+
+    allowed_over = max(0.05 * budget, 1000.0)
+
+    # --- Gather candidates from DB only ---
+    targets = {cat: max(1.0, budget * pct) for cat, pct in alloc.items()}
+    candidates = {
+        cat: top_n_for_cat(cat, targets.get(cat, 0.0), n=5) for cat in alloc.keys()
+    }
+
+    if not any(len(v) for v in candidates.values()):
+        return (
+            "I could not find enough components in the database to make recommendations.",
+            200,
+            {"Content-Type": "text/plain; charset=utf-8"},
+        )
+
+    max_variants = 0
+    for cat in ["cpus", "gpus", "rams", "motherboards"]:
+        max_variants = max(max_variants, len(candidates.get(cat, [])))
+    num_options = min(3, max(2, max_variants))
+
+    # --- Build helper (pick and downgrade to meet budget) ---
+    def build_option(opt_index):
+        chosen = []
+        total = 0.0
+        for cat in [
+            "motherboards",
+            "cpus",
+            "rams",
+            "storages",
+            "coolers",
+            "gpus",
+            "psus",
+        ]:
+            cand_list = candidates.get(cat, []) or []
+            pick = None
+            if opt_index < len(cand_list):
+                pick = cand_list[opt_index]
+            elif cand_list:
+                pick = cand_list[0]
+            if pick:
+                price = _safe_float(pick.get("price")) or 0.0
+                chosen.append([cat, pick, price])
+                total += price
+            else:
+                chosen.append([cat, None, 0.0])
+
+        if total <= budget + allowed_over:
+            return chosen, total
+
+        # downgrade loop (greedy: replace most expensive with next cheaper)
+        tried = True
+        while total > budget + allowed_over and tried:
+            tried = False
+            expensive = sorted(
+                [c for c in chosen if c[1] is not None], key=lambda x: -x[2]
+            )
+            for cat, current_item, current_price in expensive:
+                cand_list = candidates.get(cat, []) or []
+                cheaper = None
+                for cand in cand_list:
+                    cp = _safe_float(cand.get("price"))
+                    if cp is None:
+                        continue
+                    if cp < current_price - 0.0001:
+                        if cheaper is None or cp < _safe_float(cheaper.get("price")):
+                            cheaper = cand
+                if cheaper:
+                    new_price = _safe_float(cheaper.get("price")) or 0.0
+                    for c in chosen:
+                        if c[0] == cat and c[1] == current_item:
+                            c[1] = cheaper
+                            total = total - current_price + new_price
+                            c[2] = new_price
+                            tried = True
+                            break
+                if tried:
+                    break
+        return chosen, total
+
+    options = []
+    for i in range(num_options):
+        chosen, total = build_option(i)
+        options.append((chosen, total))
+
+    # final aggressive cap if hugely over
+    for idx, (chosen, total) in enumerate(options):
+        if total > budget * 1.25:
+            for cat in ("gpus", "cpus"):
+                cand_list = candidates.get(cat, []) or []
+                if cand_list:
+                    cheapest = min(
+                        cand_list, key=lambda it: _safe_float(it.get("price")) or 0.0
+                    )
+                    for c in chosen:
+                        if c[0] == cat:
+                            oldp = c[2]
+                            newp = _safe_float(cheapest.get("price")) or 0.0
+                            c[1] = cheapest
+                            c[2] = newp
+                            total = total - oldp + newp
+            options[idx] = (chosen, total)
+
+    if len(options) < 2:
+        if options:
+            options = [options[0], options[0]]
+        else:
+            return (
+                "I could not create build options from the database.",
+                200,
+                {"Content-Type": "text/plain; charset=utf-8"},
+            )
+
+    # --- Build HTML output with table format for each option ---
+    html_parts = []
+    html_parts.append(
+        f"<div><strong>Build suggestions for {usage} — budget target: {_format_php(budget)}</strong></div>"
+    )
+    html_parts.append("<div style='margin-top:10px;'>")
+
+    for idx, (chosen, total) in enumerate(options[:3], start=1):
+        # Wrap each option in a distinct build-option block so JS can map chips -> details reliably
+        html_parts.append(f'<div class="build-option" style="margin-top:12px;">')
+
+        # Option header + brief
+        html_parts.append(
+            f"<h4 style='margin:4px 0;'>Option {idx} — Estimated total: {_format_php(total)}</h4>"
+        )
+        html_parts.append(
+            f"<p style='margin:6px 0 10px 0;'><b>Brief:</b> A {usage} oriented build around {_format_php(budget)} (option {idx}).</p>"
+        )
+
+        # Table (Component | Price)
+        html_parts.append(
+            '<table style="border-collapse:collapse; width:100%; margin-bottom:8px;">'
+        )
+        html_parts.append("<thead><tr>")
+        html_parts.append(
+            '<th style="text-align:left;padding:6px 12px 6px 0;font-weight:600">Component</th>'
+        )
+        html_parts.append(
+            '<th style="text-align:right;padding:6px 8px;font-weight:600">Price</th>'
+        )
+        html_parts.append("</tr></thead><tbody>")
+
+        for cat, it, price in chosen:
+            label = cat[:-1].capitalize() if cat.endswith("s") else cat.capitalize()
+            if it:
+                name = it.get("displayName") or it.get("name") or "Unknown"
+                brand = (it.get("brand") or "").strip()
+                brand_part = f" — {brand}" if brand else ""
+                price_str = _format_php(price)
+                html_parts.append(
+                    f"<tr>"
+                    f"<td style='padding:6px 12px 6px 0;vertical-align:top'>{label}: {name}{brand_part}</td>"
+                    f"<td style='padding:6px 8px;vertical-align:top;text-align:right'>{price_str}</td>"
+                    f"</tr>"
+                )
+            else:
+                text = (
+                    "(no item found)"
+                    if cat != "gpus"
+                    else "(no discrete GPU selected from database)"
+                )
+                html_parts.append(
+                    f"<tr>"
+                    f"<td style='padding:6px 12px 6px 0;vertical-align:top'>{label}:</td>"
+                    f"<td style='padding:6px 8px;vertical-align:top;text-align:right'>{text}</td>"
+                    f"</tr>"
+                )
+
+        # total row
+        html_parts.append(
+            "<tr>"
+            "<td style='border-top:1px solid #e6eef2;padding:8px 12px 6px 0;font-weight:700'>Total estimated price:</td>"
+            f"<td style='border-top:1px solid #e6eef2;padding:8px 8px;font-weight:700;text-align:right'>{_format_php(total)}</td>"
+            "</tr>"
+        )
+
+        html_parts.append("</tbody></table>")
+        html_parts.append("</div>")  # close build-option
+
+    html_parts.append(
+        "<div style='margin-top:10px;font-size:0.95em;color:#444'>(Note: all recommended components are selected only from the local database. Small variance around the budget is allowed.)</div>"
+    )
+    html_parts.append("</div>")  # container end
+
+    html = "\n".join(html_parts)
+    return (html, 200, {"Content-Type": "text/html; charset=utf-8"})
+
 # ========== ROUTES ==========
-
-
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -132,13 +449,11 @@ def check_compat():
                 "cpus",
                 "gpus",
                 "rams",
-                "storages",
                 "psus",
                 "coolers",
-                "ssds",
                 "nvmes",
-                "hdds",
                 "ssds",
+                "hdds",
                 "storages",
             ):
                 items = DATABASE.get(cat) or []
@@ -249,21 +564,30 @@ def check_compat():
             # --- Ask Gemini to generate a short 2-sentence BRAND explanation if brand exists,
             #     otherwise fall back to component description ---
             try:
-                gemini_prompt = (
-                    f"Write one short sentence describing the PC component '{comp_name}' "
-                    f"built by {brand_name if brand_name else 'its manufacturer'}. "
-                    "Start the sentence with the component name (e.g., 'ASUS PRIME B650-PLUS is...'). "
-                    "Include what type of part it is (like motherboard, CPU, GPU, PSU, etc.) "
-                    "and mention its purpose or key advantage (e.g., performance, compatibility, or reliability). "
-                    "Keep it natural and professional — no marketing words like 'ultimate' or 'amazing'. "
-                    "Do not add extra sentences or introductions."
-                )
+                if brand_name:
+                    gemini_prompt = (
+                        f"Write a concise two-sentence description of the brand '{brand_name}' "
+                        "in the context of PC hardware. Mention what the brand is generally known for "
+                        "(e.g., reliability, value, gaming focus, cooling, storage, motherboards, GPUs, etc.). "
+                        "Use a neutral, informative tone and keep it exactly two short sentences."
+                    )
+                else:
+                    gemini_prompt = (
+                        f"Write a concise two-sentence description of the PC component '{comp_name}'. "
+                        "Clearly state what type of component it is and what it does. "
+                        "Use a neutral, informative tone and keep it exactly two short sentences."
+                    )
 
                 gemini_resp = CLIENT.models.generate_content(
                     model="gemini-2.5-flash-lite",
                     contents=gemini_prompt,
                 )
-                desc_text = getattr(gemini_resp, "text", "").strip()
+                desc_text = ""
+                try:
+                    desc_text = (getattr(gemini_resp, "text", "") or "").strip()
+                except Exception:
+                    desc_text = ""
+
                 if not desc_text:
                     if brand_name:
                         desc_text = f"{brand_name} is a company that produces PC hardware components. It is known for offering reliable products in its segment."
@@ -296,7 +620,12 @@ def check_compat():
                 rows.append((k, val))
 
             if not rows:
-                pass
+                # No spec fields found for this component — return a short plain-text note
+                return (
+                    f"I couldn't find detailed specifications for {comp_name} in the database.",
+                    200,
+                    {"Content-Type": "text/plain; charset=utf-8"},
+                )
             else:
                 table_html = [
                     '<table style="border-collapse:collapse;">',
@@ -504,6 +833,11 @@ def check_compat():
                 {"Content-Type": "text/plain; charset=utf-8"},
             )
 
+    # Deterministic build recommendation (DB-driven)
+    build_resp = recommend_build_from_db(query)
+    if build_resp:
+        return build_resp
+
     # --- Greeting handling: only if user actually greeted ---
     if looks_like_greeting(query):
         greet_prompt = (
@@ -587,29 +921,21 @@ def check_compat():
         "594 J. Nepomuceno St, Quiapo, Manila, 1001 Metro Manila — known for offering quality parts and excellent service.\n\n"
         f"Available parts (for reference): {db_summary}\n\n"
         "Behavior:\n"
-        "- If the question can be answered with 'yes' or 'no', respond only with that and a brief reason.\n"
-        "- When asked about hardware compatibility (e.g., 'Is CPU X compatible with Motherboard Y?'), "
-        "respond strictly in one of these formats:\n"
-        "  • 'Yes. They are COMPATIBLE because <brief reason>.'\n"
-        "  • 'No. They are INCOMPATIBLE because <brief reason>.'\n"
-        "- When asked for definitions or general PC information (e.g., 'What is a motherboard?'), respond in an educational tone using 3–5 short, clear sentences.\n"
-        "- When the user asks using the format '<component> compatible <component type>' (e.g., "
-        "'MSI Pro H610M S DDR4 compatible CPU' or 'MSI Pro H610M S DDR4 compatible RAM'), display all compatible components "
-        "from the database based on these rules:\n"
-        "  Then display them as bullet points (•)\n"
-        "  • Motherboard → CPU: Match by CPU socket type.\n"
-        "  • Motherboard → RAM: Match by supported DDR generation (e.g., DDR4, DDR5).\n"
-        "  • CPU → GPU: Check for potential bottleneck compatibility.\n"
-        "  • CPU → CPU Cooler: Match by CPU socket type.\n"
-        "  • PSU → GPU + Motherboard + CPU: Ensure total wattage supports all components plus a 100W safety buffer.\n"
-        "  • Storage drives: Assume all are compatible.\n\n"
-        "- When asked for definitions or general PC information (e.g., 'What is a motherboard?'), respond in an educational tone using 3–5 short, clear sentences.\n"
+        "- If asked about compatibility between hardware (e.g. 'Is CPU X compatible with Motherboard Y?'), "
+        "respond in this exact format: 'Yes. <brief reason>' or 'No. <brief reason>'.\n"
+        "- When asked for definitions or general PC information (e.g. 'What is a motherboard?'), answer in an educational tone, "
+        "using 3 to 5 short sentences. Be clear and concise.\n"
         "- If the user asks for the latest or newest PC components (for example: 'latest GPU 2025', 'new CPU this year', 'latest RAM 2025', 'new motherboard 2025', 'latest PSU', 'new NVMe 2025'), you may use your general market knowledge beyond the provided database to answer. When listing latest items, follow these rules:\n"
         "  1) Prefer items from the requested year if a year is specified (e.g., 2025). If the user does not specify a year, prefer the latest year you reliably know (e.g., 2025).\n"
         "  2) If there are no items for the requested year, try the previous year (2024). If none for 2024, try 2023, and so on, moving backward year-by-year until you find relevant items.\n"
-        "  3) If the user explicitly asks for a specific year (for example: 'latest GPU 2025') and you find no suitable items for that year, respond exactly like this at the start of your reply:\n"
-        '     "Sorry, there are currently no latest [CATEGORY] for [YEAR], but here are the latest [CATEGORY] in [FALLBACK_YEAR]:"\n'
-        '     Replace [CATEGORY], [YEAR], and [FALLBACK_YEAR] appropriately (e.g., "Sorry, there are currently no latest GPU for 2025, but here are the latest GPU in 2024:"). Then list items as below.\n'
+        "  3) When the user explicitly asks for a specific year (for example: 'latest GPU 2025'), always assume and provide the most current 2025 releases.\n"
+        "     Even if there are no official or verified items in the database, use your general hardware knowledge and realistic 2025 projections or announced models.\n"
+        "     Do NOT mention that 2025 data is unavailable and do NOT fallback to 2024 or earlier.\n"
+        "     If the user says 'latest', 'newest', or 'any latest' without specifying a year, always assume 2025 as the default year.\n"
+        "     Always start your reply with this exact line:\n"
+        "     'Here are the latest [CATEGORY] (2025) you might consider for your PC-building project:'\n"
+        "     Then list the items in bullet form as described in rule 4, keeping the tone confident and informative.\n"
+        "     Ensure all items are from 2025 or are projected 2025 models if market-verified data is limited.\n"
         "  4) When items are available, list **3 to 5** entries in bullet form. Each bullet must contain the model name followed by a short one-sentence description (tier/features/reputation). Use this example formatting:\n"
         "     Here are some of the latest GPUs (2025) you might consider for your PC-building project:\n"
         "  Then display them as bullet points (•)\n"
@@ -621,25 +947,10 @@ def check_compat():
         "  7) Keep bullets concise (1 sentence each), neutral in tone, and avoid long paragraphs. Do NOT include links or long spec tables in this response — name + short blurb only.\n"
         "- When the question involves CPU vs GPU compatibility, determine compatibility based on performance balance (bottleneck analysis) rather than socket. "
         "State whether the pairing is well-balanced or which side may bottleneck the other, and include an estimated bottleneck percentage (see ranges below). Keep this explanation within 3 to 5 sentences.\n"
-        "  Then display them as bullet points (•)\n"
-        "    • Well-balanced: bottleneck minimal (0–5%).\n"
-        "    • CPU-limits-GPU: estimate ~10–30% CPU bottleneck depending on severity.\n"
-        "    • GPU-limits-CPU: estimate ~10–20% GPU bottleneck.\n"
-        "- If the user asks where to buy PC components or mentions computer shops, respond with:\n"
-        "  'Here are PC hardware stores that are reputable and have both physical and online presence. These might be great stops for your PC-building part-selection research.'\n"
-        "  Then display them as bullet points (•) in this exact order and with short positive descriptions:\n"
-        "  • SMFP Computer Trading — Trusted store in Quiapo, Manila offering quality PC components and excellent customer service.\n"
-        "  • PC Express — One of the largest and most established PC retailers in the Philippines, with wide store coverage and online availability.\n"
-        "  • DynaQuest PC — Known for reliable mid-to-high-end gaming builds, with competitive prices and nationwide delivery.\n"
-        "  • EasyPC — Popular for budget-friendly PC parts and online promos; great for value-seeking builders.\n"
-        "  • DataBlitz — Well-known tech retail chain that also carries PC peripherals and gaming accessories.\n"
-        "  • PCHub — A reputable tech hub in Metro Manila offering a variety of enthusiast and custom build components.\n\n"
-        "- If the user specifically mentions a location (e.g., 'near Quezon City', 'Cebu', or 'Davao'), actively check online sources to find nearby branches or delivery coverage. Prefer a Google Maps search (or the web) to confirm store branches, opening hours, and delivery availability. "
-        "  - If web access (e.g., Google Maps) is available, list stores that have a branch or reliable delivery to the mentioned location and include a short note about proximity or availability (for example: 'Has a branch ~2.3 km from Quezon City Hall' or 'Delivers to Cebu City'). Cite or reference the source you used (e.g., 'source: Google Maps' or the store's official site). "
-        "  - If web access is not available at runtime or no reliable online info is found, fall back to the known reputable stores list and say you could not verify branch locations right now. "
-        "  - Keep the reply concise and display the stores as bullets, starting with the intro: "
-        "    'Here are PC hardware stores that are reputable and have both physical and online presence. These might be great stops for your PC-building part-selection research.' "
-        "  - Always list SMFP Computer Trading first (include the address) and follow with the other recommended retailers and short descriptions (PC Express, DynaQuest, EasyPC, DataBlitz, PCHub)."
+        "    * Well-balanced: bottleneck minimal (0–5%).\n"
+        "    * CPU-limits-GPU: estimate ~10–30% CPU bottleneck depending on severity.\n"
+        "    * GPU-limits-CPU: estimate ~10–20% GPU bottleneck.\n"
+        "- If the user asks where to buy PC components or mentions shops, list SMFP Computer first as the top recommended store (include the address), followed by other known computer retailers in the Philippines only (for example: PC Express, DynaQuest, EasyPC, DataBlitz). Describe SMFP Computer positively.\n"
         "- For recommendations, builds, or part-selection guidance, strictly use only the components found in the provided database.\n"
         "- If the question clearly has no relation to PC components or computing hardware, respond with that line. "
         "However, if the question seems like a clarification or follow-up (for example, it refers to something mentioned earlier), "

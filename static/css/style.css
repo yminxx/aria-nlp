@@ -34,6 +34,51 @@ body {
   font-weight: var(--font-weight-semibold);
 }
 
+/* Build chips UI */
+.build-chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.build-chip {
+  background: var(--chip-bg);
+  /* existing pink */
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(2, 6, 23, 0.06);
+  border: 0;
+  transition: transform 0.08s ease, background 0.12s ease;
+  user-select: none;
+}
+
+.build-chip:hover {
+  transform: translateY(-2px);
+}
+
+.build-chip.active {
+  background: #ffc4bc;
+  transform: translateY(0);
+}
+
+.build-details {
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #f1f6f9;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  white-space: pre-wrap;
+  line-height: 1.45;
+  font-family: var(--app-font);
+  max-width: 100%;
+  word-break: break-word;
+}
+
 /* Global */
 *,
 *::before,
