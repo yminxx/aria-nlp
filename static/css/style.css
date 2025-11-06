@@ -1,6 +1,5 @@
 /* -------------------------
-   ARsemble style.css (paste entire file)
-   Replaces old CSS — uses your requested palette & font
+   ARsemble style.css (Updated — Flexible Input Version)
    ------------------------- */
 
 :root {
@@ -16,9 +15,6 @@
   --border: #e5e7eb;
   --bubble-shadow: rgba(0, 0, 0, 0.08);
   --radius: 16px;
-
-  /* requested font stack */
-  --app-font: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 body {
@@ -45,7 +41,6 @@ body {
 
 .build-chip {
   background: var(--chip-bg);
-  /* existing pink */
   color: var(--accent);
   border-radius: 999px;
   padding: 8px 14px;
@@ -97,26 +92,23 @@ body {
   color: var(--accent);
   display: flex;
   justify-content: center;
-
-  /* apply font everywhere */
   font-family: var(--app-font);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Chat container: keep top padding smaller so it doesn't appear pre-typed */
+/* Chat container */
 .chat-container {
   width: 100%;
   max-width: 500px;
   display: flex;
   flex-direction: column;
   padding: 0.75rem 1rem;
-  /* slightly reduced top padding */
   box-sizing: border-box;
   height: calc(100vh - 0px);
 }
 
-/* Aria greeting bubble (inside scroll area) */
+/* Aria greeting bubble */
 .aria-bubble {
   background: var(--aria-bg);
   color: var(--accent);
@@ -131,7 +123,7 @@ body {
   max-width: 92%;
 }
 
-/* Suggestions (chips) */
+/* Suggestions */
 .suggestions {
   display: flex;
   flex-direction: column;
@@ -141,7 +133,7 @@ body {
   font-size: 14px;
 }
 
-/* Clickable chip style — not full width, uses exact pink */
+/* Suggestion buttons */
 .suggest-btn {
   background: var(--chip-bg);
   color: var(--accent);
@@ -153,17 +145,15 @@ body {
   font-family: var(--app-font);
   transition: background 0.12s ease;
   max-width: fit-content;
-  /* prevents full-width chips */
   white-space: nowrap;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .suggest-btn:hover {
   background: #ffc4bc;
-  /* slightly darker pink on hover */
 }
 
-/* Main scrollable chat area (flex + overflow) */
+/* Chat messages area */
 .chat-box {
   display: flex;
   flex-direction: column;
@@ -171,7 +161,6 @@ body {
   overflow-y: auto;
   flex: 1 1 auto;
   padding: 10px 0 96px;
-  /* bottom padding reserved for fixed input */
   -webkit-overflow-scrolling: touch;
 }
 
@@ -188,71 +177,63 @@ body {
   overflow-wrap: break-word;
 }
 
-/* aria vs user */
 .message.aria {
   background: var(--aria-bg);
   align-self: flex-start;
   color: var(--accent);
-  font-family: var(--app-font);
   font-size: 14px;
 }
 
 .message.user {
   background: var(--user-bg);
   align-self: flex-end;
-  color: var(--accent);
-  font-family: var(--app-font);
-  font-weight: 600;
   color: #333333;
+  font-weight: 600;
   font-size: 14px;
 }
 
-/* Fixed input bar at bottom */
+/* ===========================
+   FLEXIBLE INPUT FIELD (UPDATED)
+   =========================== */
+
+/* Fixed bottom input bar (full width + flexible) */
 .chat-input {
   position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   bottom: env(safe-area-inset-bottom, 12px);
   box-sizing: border-box;
   width: 100%;
-  max-width: 500px;
+  max-width: 100%;
   display: flex;
   gap: 10px;
-  padding: 10px 12px;
-  border-top: 0px solid var(--border);
+  padding: 10px 16px;
   background: rgba(255, 255, 255, 0.00);
-  /* fully transparent — input pill handles colour */
   z-index: 60;
-  align-items: center;
+  align-items: flex-end;
+  justify-content: center;
   pointer-events: auto;
 }
 
-/* Input pill wrapper (optional visual pill) */
-/* If you want an input pill background, wrap textarea in a container with .input-pill */
-.input-pill {
+/* Input pill container */
+.chat-input .input-pill {
+  width: min(960px, calc(100% - 24px));
   display: flex;
-  align-items: center;
   gap: 10px;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 999px;
-  background: transparent;
-  /* keep transparent — keeps chip pink off */
-  box-shadow: 0 6px 20px rgba(2, 6, 23, 0.04);
+  align-items: center;
 }
 
-/* Textarea: auto-growing, no scrollbar, using requested font.
-   Important: background is NOT the chip color (transparent here), border subtle */
+/* Flexible, auto-growing textarea */
 .chat-input textarea {
-  flex: 1;
+  flex: 1 1 auto;
   resize: none;
-  height: 44px;
-  min-height: 44px;
-  max-height: 160px;
-  overflow-y: hidden;
+  height: auto;
+  min-height: 48px;
+  max-height: 50vh;
+  overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   font-family: var(--app-font);
   font-weight: 700;
   font-size: 15px;
@@ -261,24 +242,29 @@ body {
   background: #ffd7d0;
   color: var(--accent);
   box-sizing: border-box;
+  transition: min-height 120ms ease, box-shadow 120ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* hide native textarea scroll thumb in WebKit */
+.chat-input textarea:focus {
+  min-height: 72px;
+  box-shadow: 0 6px 20px rgba(2, 6, 23, 0.06);
+}
+
+/* Scroll thumb (optional) */
 .chat-input textarea::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+  width: 6px;
 }
 
-/* Firefox */
-.chat-input textarea {
-  scrollbar-width: none;
+.chat-input textarea::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 99px;
 }
 
-/* Send button (round) — keep it using the user green for icon only */
+/* Send button */
 .chat-input button {
   border: none;
   background: var(--user-bg);
-  /* circular icon uses user color */
   border-radius: 50%;
   width: 44px;
   height: 44px;
@@ -290,8 +276,21 @@ body {
   box-shadow: 0 4px 14px rgba(2, 6, 23, 0.06);
 }
 
-/* reduce top gap that looked like 2-lines typed in:
-   If you still want no gap at all, change padding-top to 0 */
+/* Responsive input sizes */
+@media (max-width: 420px) {
+  .chat-input textarea {
+    font-size: 16px;
+    min-height: 64px;
+    padding: 14px 16px;
+  }
+
+  .chat-input button {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+/* reduce top gap for first greeting */
 .chat-container>.aria-bubble:first-child {
   margin-top: 6px;
 }
