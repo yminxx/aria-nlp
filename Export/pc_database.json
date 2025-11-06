@@ -588,7 +588,7 @@
             "noiseLevelDba": 28,
             "coolingType": "Air",
             "recommendedUse": "Best for entry-level or office PCs with low TDP processors.",
-            "compatibilityNotes": "Supports Intel LGA115x and AMD AM4 sockets only. Not suitable for AM5 or LGA1700 platforms."
+            "compatibilityNotes": "Supports Intel LGA1700, AM4 and AMD AM5 sockets."
         },
         {
             "id": "cool-inplay-s40",
