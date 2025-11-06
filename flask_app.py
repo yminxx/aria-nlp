@@ -36,6 +36,7 @@ if not os.path.exists(DB_PATH):
 try:
     with open(DB_PATH, "r", encoding="utf-8") as f:
         DATABASE = json.load(f)
+
 except json.JSONDecodeError as je:
     raise SystemExit(f"Failed to parse JSON database at {DB_PATH}: {je}")
 except Exception as e:
@@ -45,6 +46,18 @@ app.logger.info(
     f"Loaded component database from {DB_PATH} "
     f"({len(DATABASE.get('cpus', []))} CPUs, {len(DATABASE.get('motherboards', []))} motherboards, etc.)"
 )
+
+# Ensure 'storages' category exists and includes SSDs, NVMe, and HDDs
+if "storages" not in DATABASE or not DATABASE["storages"]:
+    DATABASE["storages"] = []
+    for k in ("ssds", "nvmes", "hdds"):
+        if k in DATABASE and isinstance(DATABASE[k], list):
+            DATABASE["storages"].extend(DATABASE[k])
+
+    # Optional: log the merge result
+    app.logger.info(
+        f"Merged {len(DATABASE.get('storages', []))} storage items (from SSD/NVMe/HDD categories)."
+    )
 
 # ---------- Greeting detection helpers ----------
 GREET_PAT = re.compile(
@@ -343,10 +356,30 @@ def recommend_build_from_db(query_text: str):
         html_parts.append(
             f"<h4 style='margin:4px 0;'>Option {idx} — Estimated total: {_format_php(total)}</h4>"
         )
+        # Determine descriptive brief by usage
+        if usage == "gaming":
+            brief_text = (
+                f"This build is optimized for smooth gaming performance, "
+                f"balancing graphics capability and processing power around {_format_php(budget)}."
+            )
+        elif usage == "productivity":
+            brief_text = (
+                f"This build is designed for creative and work tasks such as editing, rendering, and multitasking — "
+                f"a reliable productivity build around {_format_php(budget)}."
+            )
+        elif usage == "office":
+            brief_text = (
+                f"This is a cost-efficient setup ideal for everyday office and home use, "
+                f"built around {_format_php(budget)}."
+            )
+        else:
+            brief_text = (
+                f"This is a general-purpose build suitable for common tasks, offering solid all-around performance "
+                f"around {_format_php(budget)}."
+            )
         html_parts.append(
-            f"<p style='margin:6px 0 10px 0;'><b>Brief:</b> A {usage} oriented build around {_format_php(budget)} (option {idx}).</p>"
+            f"<p style='margin:6px 0 10px 0;'><b></b> {brief_text}</p>"
         )
-
         # Table (Component | Price)
         html_parts.append(
             '<table style="border-collapse:collapse; width:100%; margin-bottom:8px;">'
