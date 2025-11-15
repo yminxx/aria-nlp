@@ -1,57 +1,45 @@
-// main.js (replace entire file contents with this)
-
 (() => {
     const chatBox = document.getElementById('chat');
     const input = document.getElementById('q');
     const btn = document.getElementById('askBtn');
     const suggestions = document.querySelectorAll('.suggest-btn');
 
-    // --- Auto-resize textarea (caps to 50vh) ---
     function autoResizeTextarea(el) {
         if (!el) return;
-        // reset to compute scrollHeight reliably
         el.style.height = 'auto';
-        // compute desired height
         const scrollH = el.scrollHeight;
-        const maxH = Math.floor(window.innerHeight * 0.5); // 50vh cap
+        const maxH = Math.floor(window.innerHeight * 0.5);
         const newHeight = Math.min(scrollH, maxH);
         el.style.height = newHeight + 'px';
     }
 
-    // call once on load if element exists
     if (input) {
-        // small initial height baseline (you may adjust)
         input.style.minHeight = '48px';
         autoResizeTextarea(input);
     }
 
-    // keep your old autosize behavior but improved
     if (input) {
         input.addEventListener('input', function () {
             autoResizeTextarea(this);
         }, { passive: true });
 
-        // On focus, wait a tick to allow mobile keyboard animation then resize
         input.addEventListener('focus', function () {
             requestAnimationFrame(() => {
                 setTimeout(() => autoResizeTextarea(this), 80);
             });
         });
 
-        // Recompute on window resize / orientation change
         window.addEventListener('resize', () => {
             autoResizeTextarea(input);
         });
     }
 
-    // --- Message helper functions (preserved/unchanged semantics) ---
     function appendMessage(sender, text, isHTML = false) {
         const msg = document.createElement('div');
         msg.classList.add('message', sender);
         if (isHTML) msg.innerHTML = text;
         else msg.textContent = text;
         chatBox.appendChild(msg);
-        // ensure newest message is visible
         chatBox.scrollTop = chatBox.scrollHeight;
         return msg;
     }
@@ -76,7 +64,6 @@
         return { wrapper, chipsRow, details };
     }
 
-    // simplified safe HTML setter (preserve internal formatting)
     function safeInnerHTML(container, html) {
         container.innerHTML = html;
     }
@@ -84,12 +71,9 @@
     function handleAssistantHtml(assistantMsg, htmlString) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlString, 'text/html');
-
-        // Find build-option blocks (your AI HTML should mark these)
         const buildDivs = Array.from(doc.querySelectorAll('.build-option'));
 
         if (!buildDivs.length) {
-            // fallback: render raw HTML
             safeInnerHTML(assistantMsg, htmlString);
             return;
         }
@@ -110,7 +94,7 @@
             chip.textContent = chipLabel;
             chipsRow.appendChild(chip);
 
-            const detailHtml = div.outerHTML; // preserve full block
+            const detailHtml = div.outerHTML; 
             detailBlocks.push(detailHtml);
 
             chip.addEventListener('click', () => {
@@ -130,11 +114,9 @@
         wrapper.appendChild(hint);
     }
 
-    // --- Query sending / response handling ---
     async function sendQuery(query) {
         if (!query || !query.trim()) return;
         appendMessage('user', query);
-        // clear input and resize after clearing
         if (input) {
             input.value = '';
             autoResizeTextarea(input);
@@ -152,7 +134,6 @@
             const ct = (res.headers.get('Content-Type') || '').toLowerCase();
             const text = await res.text();
 
-            // remove thinking placeholder
             thinkingMsg.remove();
 
             if (ct.includes('text/html')) {
@@ -169,12 +150,10 @@
             thinkingMsg.remove();
             appendMessage('aria', 'Request failed: ' + err.message);
         } finally {
-            // ensure chat scroll is at bottom
             chatBox.scrollTop = chatBox.scrollHeight;
         }
     }
 
-    // --- UI event bindings (preserve behavior) ---
     if (btn) {
         btn.addEventListener('click', () => {
             sendQuery(input ? input.value : '');
@@ -196,7 +175,6 @@
         });
     });
 
-    // optional: clicking the pill focuses textarea (if you added .input-pill)
     const pill = document.querySelector('.input-pill');
     if (pill && input) {
         pill.addEventListener('click', (e) => {

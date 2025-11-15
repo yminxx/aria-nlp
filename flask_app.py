@@ -349,14 +349,11 @@ def recommend_build_from_db(query_text: str):
     html_parts.append("<div style='margin-top:10px;'>")
 
     for idx, (chosen, total) in enumerate(options[:3], start=1):
-        # Wrap each option in a distinct build-option block so JS can map chips -> details reliably
         html_parts.append(f'<div class="build-option" style="margin-top:12px;">')
-
-        # Option header + brief
         html_parts.append(
             f"<h4 style='margin:4px 0;'>Option {idx} — Estimated total: {_format_php(total)}</h4>"
         )
-        # Determine descriptive brief by usage
+       
         if usage == "gaming":
             brief_text = (
                 f"This build is optimized for smooth gaming performance, "
@@ -389,7 +386,7 @@ def recommend_build_from_db(query_text: str):
             '<th style="text-align:left;padding:6px 12px 6px 0;font-weight:600">Component</th>'
         )
         html_parts.append(
-            '<th style="text-align:right;padding:6px 8px;font-weight:600">Price</th>'
+            '<th style="text-align:right;padding:6px 2px;font-weight:600">Price</th>'
         )
         html_parts.append("</tr></thead><tbody>")
 
@@ -403,7 +400,7 @@ def recommend_build_from_db(query_text: str):
                 html_parts.append(
                     f"<tr>"
                     f"<td style='padding:6px 12px 6px 0;vertical-align:top'>{label}: {name}{brand_part}</td>"
-                    f"<td style='padding:6px 8px;vertical-align:top;text-align:right'>{price_str}</td>"
+                    f"<td style='padding:6px 2px;vertical-align:top;text-align:right'>{price_str}</td>"
                     f"</tr>"
                 )
             else:
@@ -428,12 +425,12 @@ def recommend_build_from_db(query_text: str):
         )
 
         html_parts.append("</tbody></table>")
-        html_parts.append("</div>")  # close build-option
+        html_parts.append("</div>")  
 
     html_parts.append(
         "<div style='margin-top:10px;font-size:0.95em;color:#444'>(Note: all recommended components are selected only from the local database. Small variance around the budget is allowed.)</div>"
     )
-    html_parts.append("</div>")  # container end
+    html_parts.append("</div>")  
 
     html = "\n".join(html_parts)
     return (html, 200, {"Content-Type": "text/html; charset=utf-8"})
@@ -466,7 +463,6 @@ def check_compat():
         )
         return (text, 200, {"Content-Type": "text/plain; charset=utf-8"})
 
-    # --- Quick deterministic "specs" handler (returns DB specs as invisible-border table) ---
     if re.search(
         r"\b(specs|specifications|spec|details|configuration)\b",
         query,
@@ -570,7 +566,7 @@ def check_compat():
                     category_guess = cat
                     break
 
-            # Determine usage/budget heuristics (kept for other logic if needed)
+            # Determine usage/budget heuristics 
             usage = "general-purpose builds"
             budget = "mid-range budget"
             try:
@@ -593,7 +589,6 @@ def check_compat():
             elif category_guess in ("coolers",):
                 usage = "cooling high-performance systems"
 
-            # --- Ask Gemini to generate a short 2-sentence BRAND explanation if brand exists,
             #     otherwise fall back to component description ---
             try:
                 if brand_name:
@@ -684,7 +679,7 @@ def check_compat():
                 )
         # else fall through to normal model handling
 
-    # --- Robust deterministic "price" handler (replace previous price handler) ---
+    # --- Robust deterministic "price" handler ---
     if re.search(
         r"\b(price|how much|cost|how much is|how much does|price of)\b",
         query,
@@ -1054,24 +1049,20 @@ User question: {query}"""
     # --- Output cleaning ---
     def clean_output(s: str) -> str:
         s = s.strip()
-        # remove triple-backtick fences
         if s.startswith("```") and s.endswith("```"):
             lines = s.splitlines()
             if len(lines) >= 3:
                 s = "\n".join(lines[1:-1])
-        # remove surrounding single or double quotes
         if (s.startswith('"') and s.endswith('"')) or (
             s.startswith("'") and s.endswith("'")
         ):
             s = s[1:-1]
-        # Normalize unicode (avoid unicode_escape decode which mangles UTF-8)
         try:
             import unicodedata
 
             s = unicodedata.normalize("NFC", s)
         except Exception:
             pass
-        # Trim stray backticks/leading/trailing whitespace
         s = re.sub(r"^[`\\s]+", "", s)
         s = re.sub(r"[`\\s]+$", "", s)
         return s
