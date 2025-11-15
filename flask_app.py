@@ -395,7 +395,10 @@ def recommend_build_from_db(query_text: str):
             if it:
                 name = it.get("displayName") or it.get("name") or "Unknown"
                 brand = (it.get("brand") or "").strip()
-                brand_part = f" — {brand}" if brand else ""
+                if brand and brand.lower() not in name.lower():
+                    brand_part = f" — {brand}"
+                else:
+                    brand_part = ""
                 price_str = _format_php(price)
                 html_parts.append(
                     f"<tr>"
