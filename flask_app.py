@@ -353,7 +353,7 @@ def recommend_build_from_db(query_text: str):
         html_parts.append(
             f"<h4 style='margin:4px 0;'>Option {idx} — Estimated total: {_format_php(total)}</h4>"
         )
-       
+
         if usage == "gaming":
             brief_text = (
                 f"This build is optimized for smooth gaming performance, "
@@ -379,14 +379,14 @@ def recommend_build_from_db(query_text: str):
         )
         # Table (Component | Price)
         html_parts.append(
-            '<table style="border-collapse:collapse; width:100%; margin-bottom:8px;">'
+            '<table style="border-collapse:collapse; width:100%; table-layout:fixed; margin-bottom:8px;">'
         )
         html_parts.append("<thead><tr>")
         html_parts.append(
-            '<th style="text-align:left;padding:6px 12px 6px 0;font-weight:600">Component</th>'
+            '<th style="width:70%; text-align:left; padding:4px 4px; font-weight:600">Component</th>'
         )
         html_parts.append(
-            '<th style="text-align:right;padding:6px 2px;font-weight:600">Price</th>'
+            '<th style="width:30%; text-align:right; padding:4px 4px; font-weight:600">Price</th>'
         )
         html_parts.append("</tr></thead><tbody>")
 
@@ -399,8 +399,8 @@ def recommend_build_from_db(query_text: str):
                 price_str = _format_php(price)
                 html_parts.append(
                     f"<tr>"
-                    f"<td style='padding:6px 12px 6px 0;vertical-align:top'>{label}: {name}{brand_part}</td>"
-                    f"<td style='padding:6px 2px;vertical-align:top;text-align:right'>{price_str}</td>"
+                    f"<td style='width:70%; padding:4px; vertical-align:top; word-break:break-word'>{label}: {name}{brand_part}</td>"
+                    f"<td style='width:30%; padding:4px; vertical-align:top; text-align:right'>{price_str}</td>"
                     f"</tr>"
                 )
             else:
