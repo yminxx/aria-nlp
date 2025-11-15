@@ -394,15 +394,10 @@ def recommend_build_from_db(query_text: str):
             label = cat[:-1].capitalize() if cat.endswith("s") else cat.capitalize()
             if it:
                 name = it.get("displayName") or it.get("name") or "Unknown"
-                brand = (it.get("brand") or "").strip()
-                if brand and brand.lower() not in name.lower():
-                    brand_part = f" — {brand}"
-                else:
-                    brand_part = ""
                 price_str = _format_php(price)
                 html_parts.append(
                     f"<tr>"
-                    f"<td style='width:70%; padding:4px; vertical-align:top; word-break:break-word'>{label}: {name}{brand_part}</td>"
+                    f"<td style='width:70%; padding:4px; vertical-align:top; word-break:break-word'>{label}: {name}</td>"
                     f"<td style='width:30%; padding:4px; vertical-align:top; text-align:right'>{price_str}</td>"
                     f"</tr>"
                 )
