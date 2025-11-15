@@ -383,10 +383,10 @@ def recommend_build_from_db(query_text: str):
         )
         html_parts.append("<thead><tr>")
         html_parts.append(
-            '<th style="width:70%; text-align:left; padding:4px 4px; font-weight:600">Component</th>'
+            '<th style="width:60%; text-align:left; padding:4px 4px; font-weight:600">Component</th>'
         )
         html_parts.append(
-            '<th style="width:30%; text-align:right; padding:4px 4px; font-weight:600">Price</th>'
+            '<th style="width:40%; text-align:right; padding:4px 4px; font-weight:600">Price</th>'
         )
         html_parts.append("</tr></thead><tbody>")
 
